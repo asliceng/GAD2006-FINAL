@@ -32,6 +32,12 @@ void ADraggableObstacle::BeginPlay()
             PlayerController->InputComponent->BindAction("Drag", IE_Released, this, &ADraggableObstacle::StopDragging);
         }
     }
+
+    GameManager = Cast<AGameManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AGameManager::StaticClass()));
+    if (!GameManager)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("GameManager not found!"));
+    }
 }
 
 // Called every frame
@@ -67,7 +73,7 @@ void ADraggableObstacle::Tick(float DeltaTime)
 
 void ADraggableObstacle::StartDragging()
 {
-    if (IsMouseOver())
+    if (IsMouseOver() && !IsDragging)
     {
         IsDragging = true;
 
@@ -97,7 +103,16 @@ void ADraggableObstacle::StartDragging()
 
 void ADraggableObstacle::StopDragging()
 {
-    IsDragging = false;
+    if (IsDragging)
+    {
+        IsDragging = false;
+
+        if (GameManager)
+        {
+            GameManager->SwitchPlayer();
+        }
+    }
+    
 }
 
 bool ADraggableObstacle::IsMouseOver()

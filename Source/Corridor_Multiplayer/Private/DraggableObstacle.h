@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "DraggableObstacle.generated.h"
+
 
 UCLASS()
 class ADraggableObstacle : public AActor
@@ -14,6 +17,8 @@ class ADraggableObstacle : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ADraggableObstacle();
+
+	AGameManager* GameManager;
 
 protected:
 	// Called when the game starts or when spawned

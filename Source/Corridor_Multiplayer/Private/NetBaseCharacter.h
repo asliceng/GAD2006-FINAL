@@ -30,10 +30,11 @@ public:
 	// Sets default values for this character's properties
 	ANetBaseCharacter();
 
-
-
 	UPROPERTY()
 	USkeletalMeshComponent* PlayerPawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsActivePlayer;
 
 protected:
 	// Called when the game starts or when spawned
@@ -45,5 +46,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+
 
 };

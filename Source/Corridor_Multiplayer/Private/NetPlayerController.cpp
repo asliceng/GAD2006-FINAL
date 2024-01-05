@@ -2,6 +2,7 @@
 
 
 #include "NetPlayerController.h"
+#include "GameManager.h"
 
 ANetPlayerController::ANetPlayerController()
 {
@@ -17,4 +18,16 @@ void ANetPlayerController::BeginPlay()
 void ANetPlayerController::OnActorClicked(AActor* Actor, FKey key)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnClicked: %s - %s"), *Actor->GetActorLabel(), *key.ToString());
+}
+
+void ANetPlayerController::SetPlayerActive(bool bIsActive)
+{
+    if (bIsActive)
+    {
+        EnableInput(this);
+    }
+    else
+    {
+        DisableInput(this);
+    }
 }

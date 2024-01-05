@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "GameManager.h"
 #include "NetPlayerController.generated.h"
 
+class AGameManager;
 /**
  * 
  */
@@ -22,7 +22,9 @@ public:
 
 	void OnActorClicked(AActor* Actor, FKey key);
 
-	UPROPERTY(BlueprintReadWrite)
 	AGameManager* GameManager;
+
+	UFUNCTION(BlueprintCallable, Category = "Player Activation")
+	void SetPlayerActive(bool bIsActive);
 	
 };
