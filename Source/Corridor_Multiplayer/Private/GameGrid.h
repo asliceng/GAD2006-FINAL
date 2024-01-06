@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "BoxSlot.h"
 #include "ObstacleSlot.h"
-//#include "GameManager.h"
 #include "Components/ChildActorComponent.h"
 #include "GameGrid.generated.h"
 

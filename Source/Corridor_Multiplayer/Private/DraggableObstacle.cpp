@@ -2,7 +2,6 @@
 
 
 #include "DraggableObstacle.h"
-#include "GameFramework/PlayerController.h"
 
 // Sets default values
 ADraggableObstacle::ADraggableObstacle()
@@ -20,17 +19,17 @@ ADraggableObstacle::ADraggableObstacle()
 void ADraggableObstacle::BeginPlay()
 {
 	Super::BeginPlay();
-	
-    if (GetWorld() && GetWorld()->GetFirstPlayerController())
+
+    PlayerController = Cast<ANetPlayerController>(GetWorld()->GetFirstPlayerController());
+    if (PlayerController)
+    {       
+        EnableInput(PlayerController);
+        PlayerController->InputComponent->BindAction("Drag", IE_Pressed, this, &ADraggableObstacle::StartDragging);
+        PlayerController->InputComponent->BindAction("Drag", IE_Released, this, &ADraggableObstacle::StopDragging);
+    }  
+    else
     {
-        // Enable input for the player controller
-        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-        if (PlayerController)
-        {
-            EnableInput(PlayerController);
-            PlayerController->InputComponent->BindAction("Drag", IE_Pressed, this, &ADraggableObstacle::StartDragging);
-            PlayerController->InputComponent->BindAction("Drag", IE_Released, this, &ADraggableObstacle::StopDragging);
-        }
+        UE_LOG(LogTemp, Warning, TEXT("PlayerController not found!"));
     }
 
     GameManager = Cast<AGameManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AGameManager::StaticClass()));
@@ -48,19 +47,18 @@ void ADraggableObstacle::Tick(float DeltaTime)
     if (IsDragging)
     {
         if (GetWorld() && GetWorld()->GetFirstPlayerController())
-        {
-            APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+        {           
             if (PlayerController)
             {
                 FVector MouseLocation, MouseDirection;
                 PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
 
                 FVector Start = PlayerController->PlayerCameraManager->GetCameraLocation();
-                FVector End = Start + MouseDirection * 1000.f; // Adjust the drag distance as needed
+                FVector End = Start + MouseDirection * 1000.f; 
 
                 FHitResult HitResult;
                 FCollisionQueryParams CollisionParams;
-                CollisionParams.AddIgnoredActor(this); // Ignore self to prevent hit on the dragged object
+                CollisionParams.AddIgnoredActor(this); 
 
                 if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
                 {
@@ -69,17 +67,19 @@ void ADraggableObstacle::Tick(float DeltaTime)
             }
         }
     }
+
 }
 
 void ADraggableObstacle::StartDragging()
 {
+    UE_LOG(LogTemp, Warning, TEXT("mouse sol týk "));
+
     if (IsMouseOver() && !IsDragging)
     {
         IsDragging = true;
 
         if (GetWorld() && GetWorld()->GetFirstPlayerController())
         {
-            APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
             if (PlayerController)
             {
                 FVector MouseLocation, MouseDirection;
@@ -93,7 +93,6 @@ void ADraggableObstacle::StartDragging()
 
                 if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
                 {
-                    // Calculate the offset between the mouse and the object
                     StartDragOffset = HitResult.Location - GetActorLocation();
                 }
             }
@@ -103,30 +102,29 @@ void ADraggableObstacle::StartDragging()
 
 void ADraggableObstacle::StopDragging()
 {
+  
     if (IsDragging)
     {
         IsDragging = false;
-
         if (GameManager)
         {
             GameManager->SwitchPlayer();
         }
     }
-    
 }
 
 bool ADraggableObstacle::IsMouseOver()
 {
+
     if (GetWorld() && GetWorld()->GetFirstPlayerController())
-    {
-        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+    {   
         if (PlayerController)
         {
             FVector MouseLocation, MouseDirection;
             PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
 
             FVector Start = PlayerController->PlayerCameraManager->GetCameraLocation();
-            FVector End = Start + MouseDirection * 1000.f; // Adjust the ray length as needed
+            FVector End = Start + MouseDirection * 1000.f;
 
             FHitResult HitResult;
             FCollisionQueryParams CollisionParams;
@@ -136,8 +134,9 @@ bool ADraggableObstacle::IsMouseOver()
                 return HitResult.GetActor() == this;
             }
         }
-    }
+    }       
 
     return false;
 }
+
 

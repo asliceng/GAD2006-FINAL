@@ -9,9 +9,6 @@
 UENUM(BlueprintType)
 enum class ESlotType : uint8
 {
-    /*ST_BoxSlot UMETA(DisplayName = "MovePlayer"),
-    ST_ObstacleSlot UMETA(DisplayName = "PlaceObstacle")*/
-
 	ST_BoxSlot = 0 UMETA(DisplayName = "MovePlayer"),
 	ST_ObstacleSlot = 1 UMETA(DisplayName = "PlaceObstacle"),
 	ST_COUNT = 2 UMETA(DisplayName = "NotSelected")

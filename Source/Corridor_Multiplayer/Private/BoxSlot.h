@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "PlayerUnitBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "BoxSlot.generated.h"
+
+class APlayerUnitBase;
 
 USTRUCT(Blueprintable)
 struct FSBoxPosition
@@ -60,7 +61,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	APlayerUnitBase* Unit;
 
-	//void SpawnUnitHere(TSubclassOf<AUnitBase >& UnitClass);
+	void SpawnPlayerUnitHere(TSubclassOf<APlayerUnitBase >& UnitClass);
 
 	UFUNCTION()
 	void SetState(EBoxState NewState);

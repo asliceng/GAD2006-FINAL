@@ -3,6 +3,7 @@
 
 #include "BoxSlot.h"
 #include "NetPlayerController.h"
+#include "PlayerUnitBase.h"
 
 // Sets default values
 ABoxSlot::ABoxSlot()
@@ -30,6 +31,16 @@ void ABoxSlot::OnGridClicked(AActor* TouchedActor, FKey ButtonPressed)
 	if (auto PlayerController = GWorld->GetFirstPlayerController<ANetPlayerController>())
 	{
 		PlayerController->OnActorClicked(this, ButtonPressed);
+	}
+}
+
+void ABoxSlot::SpawnPlayerUnitHere(TSubclassOf<APlayerUnitBase>& UnitClass)
+{
+	FVector Location = GetActorLocation();
+	APlayerUnitBase* NewUnit = Cast<APlayerUnitBase>(GWorld->SpawnActor(UnitClass, &Location));
+	if (NewUnit)
+	{
+		NewUnit->AssignToSlot(this);
 	}
 }
 

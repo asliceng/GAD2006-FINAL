@@ -4,9 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "NetBaseCharacter.h"
+#include "GameGrid.h"
+#include "PlayerUnitBase.h"
 #include "NetPlayerController.h"
 #include "GameManager.generated.h"
+
+USTRUCT(BlueprintType)
+struct FSLevelInfo
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere)
+	TArray<FSUnitInfo> Units;
+};
 
 UCLASS()
 class AGameManager : public AActor
@@ -17,14 +27,27 @@ public:
 	// Sets default values for this actor's properties
 	AGameManager();
 
+	UPROPERTY(EditAnywhere)
+	AGameGrid* GameGrid;
+
 	UFUNCTION(BlueprintCallable)
-	void SetupPlayers();
+	void SetupPlayers(FSLevelInfo& Info);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int CurrentLevel;
+
+	UPROPERTY(EditAnywhere)
+	TArray<FSLevelInfo> Levels;
 
 	UPROPERTY()
 	int32 CurrentPlayerIndex;
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchPlayer();
+
+
+
+	//void CreateLevelActors(FSLevelInfo& Info);
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,9 +58,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	TArray<TSubclassOf<ANetBaseCharacter>> PlayerClasses;
-	TArray<ANetBaseCharacter*> Players;
+	APlayerUnitBase* ThePlayer;
+	TArray<TSubclassOf<APlayerUnitBase>> PlayerClasses;
+	TArray<APlayerUnitBase*> Players;
 	int32 ActivePlayerIndex;
-
 	void ActivatePlayer(int32 PlayerIndex);
 };

@@ -7,6 +7,7 @@
 #include "NetPlayerController.generated.h"
 
 class AGameManager;
+
 /**
  * 
  */

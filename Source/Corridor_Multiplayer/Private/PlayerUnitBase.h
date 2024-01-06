@@ -4,9 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BoxSlot.h"
+#include "NetPlayerController.h"
 #include "PlayerUnitBase.generated.h"
 
-class ABoxSlot;
+USTRUCT(BlueprintType)
+struct FSPlayerInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FColor PlayerColor;
+
+	//PlayerLocation
+	//RemainingObstaclesNum
+
+	bool Ready;
+};
+
+USTRUCT(BlueprintType)
+struct FSUnitInfo
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APlayerUnitBase> UnitClass;
+
+	UPROPERTY(EditAnywhere)
+	FSBoxPosition StartPosition;
+};
 
 UCLASS()
 class APlayerUnitBase : public AActor
@@ -19,14 +45,20 @@ public:
 
 	void AssignToSlot(ABoxSlot* NewSlot);
 
-	//UFUNCTION(BlueprintImplementableEvent, BlueprintPure)
-	//bool IsControlledByThePlayer();
-
 	UPROPERTY(EditAnywhere)
 	FVector StartOffset;
 
 	UPROPERTY(VisibleAnywhere)
 	ABoxSlot* Slot;
+
+	UPROPERTY()
+	USkeletalMeshComponent* PlayerPawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsActivePlayer;
+
+	UPROPERTY()
+	ANetPlayerController* NetPlayerController;
 
 
 protected:

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "NetPlayerController.h"
+#include "GameFramework/PlayerController.h"
 #include "GameManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DraggableObstacle.generated.h"
@@ -39,5 +41,9 @@ public:
 	FVector StartDragOffset;
 
 	bool IsMouseOver();
+
+	UPROPERTY()
+	ANetPlayerController* PlayerController;
+
 
 };
