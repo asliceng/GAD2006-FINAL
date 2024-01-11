@@ -7,6 +7,7 @@
 #include "NetPlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "GameManager.h"
+#include "ObstacleSlot.h"
 #include "Kismet/GameplayStatics.h"
 #include "DraggableObstacle.generated.h"
 
@@ -27,16 +28,18 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* Obstacle;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* MeshComponent;
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* ObstacleMesh;
 
-	bool IsDragging;
+	bool bIsDragging;
+	bool bCanRotate;
 
 	void StartDragging();
 	void StopDragging();
+	void RotateObstacle(float DeltaScroll);
 
 	FVector StartDragOffset;
 
@@ -44,6 +47,4 @@ public:
 
 	UPROPERTY()
 	ANetPlayerController* PlayerController;
-
-
 };

@@ -9,10 +9,20 @@ ADraggableObstacle::ADraggableObstacle()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	RootComponent = MeshComponent;
+    RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
-	IsDragging = false;
+    Obstacle = CreateDefaultSubobject<UBoxComponent>(TEXT("Obstacle"));
+    Obstacle->SetupAttachment(RootComponent);
+    Obstacle->SetBoxExtent(FVector(22, 10, 2));
+    Obstacle->SetCollisionResponseToAllChannels(ECR_Block);
+
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultSlotMesh(TEXT("/Engine/BasicShapes/Cube"));
+    ObstacleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ObstacleBox"));
+    ObstacleMesh->SetupAttachment(Obstacle);
+    ObstacleMesh->SetStaticMesh(DefaultSlotMesh.Object);
+
+	bIsDragging = false;
+    bCanRotate = false;
 }
 
 // Called when the game starts or when spawned
@@ -21,16 +31,6 @@ void ADraggableObstacle::BeginPlay()
 	Super::BeginPlay();
 
     PlayerController = Cast<ANetPlayerController>(GetWorld()->GetFirstPlayerController());
-    if (PlayerController)
-    {       
-        EnableInput(PlayerController);
-        PlayerController->InputComponent->BindAction("Drag", IE_Pressed, this, &ADraggableObstacle::StartDragging);
-        PlayerController->InputComponent->BindAction("Drag", IE_Released, this, &ADraggableObstacle::StopDragging);
-    }  
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("PlayerController not found!"));
-    }
 
     GameManager = Cast<AGameManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AGameManager::StaticClass()));
     if (!GameManager)
@@ -39,73 +39,25 @@ void ADraggableObstacle::BeginPlay()
     }
 }
 
-// Called every frame
-void ADraggableObstacle::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-    if (IsDragging)
-    {
-        if (GetWorld() && GetWorld()->GetFirstPlayerController())
-        {           
-            if (PlayerController)
-            {
-                FVector MouseLocation, MouseDirection;
-                PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-
-                FVector Start = PlayerController->PlayerCameraManager->GetCameraLocation();
-                FVector End = Start + MouseDirection * 1000.f; 
-
-                FHitResult HitResult;
-                FCollisionQueryParams CollisionParams;
-                CollisionParams.AddIgnoredActor(this); 
-
-                if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
-                {
-                    SetActorLocation(HitResult.Location);
-                }
-            }
-        }
-    }
-
-}
-
 void ADraggableObstacle::StartDragging()
 {
-    UE_LOG(LogTemp, Warning, TEXT("mouse sol týk "));
+    bIsDragging = true;
 
-    if (IsMouseOver() && !IsDragging)
+    FVector2D MousePosition;
+    if (PlayerController->GetMousePosition(MousePosition.X, MousePosition.Y))
     {
-        IsDragging = true;
+        FVector WorldLocation, WorldDirection;
+        PlayerController->DeprojectScreenPositionToWorld(MousePosition.X, MousePosition.Y, WorldLocation, WorldDirection);
 
-        if (GetWorld() && GetWorld()->GetFirstPlayerController())
-        {
-            if (PlayerController)
-            {
-                FVector MouseLocation, MouseDirection;
-                PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-
-                FVector Start = PlayerController->PlayerCameraManager->GetCameraLocation();
-                FVector End = Start + MouseDirection * 1000.f;
-
-                FHitResult HitResult;
-                FCollisionQueryParams CollisionParams;
-
-                if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
-                {
-                    StartDragOffset = HitResult.Location - GetActorLocation();
-                }
-            }
-        }
+        StartDragOffset = GetActorLocation() - FVector(WorldLocation.X, WorldLocation.Y, GetActorLocation().Z);
     }
 }
 
 void ADraggableObstacle::StopDragging()
-{
-  
-    if (IsDragging)
+{ 
+    if (bIsDragging)
     {
-        IsDragging = false;
+        bIsDragging = false;
         if (GameManager)
         {
             GameManager->SwitchPlayer();
@@ -113,28 +65,35 @@ void ADraggableObstacle::StopDragging()
     }
 }
 
+void ADraggableObstacle::RotateObstacle(float DeltaScroll)
+{
+    if (bCanRotate)
+    {
+        FRotator CurrentRotation = Obstacle->GetComponentRotation();
+        FRotator NewRotation = FRotator(CurrentRotation.Pitch, CurrentRotation.Yaw + DeltaScroll * 90.0f, CurrentRotation.Roll);
+        SetActorRotation(NewRotation);
+    }
+}
+
 bool ADraggableObstacle::IsMouseOver()
 {
+    FVector WorldLocation, WorldDirection;
+    FHitResult HitResult;
 
-    if (GetWorld() && GetWorld()->GetFirstPlayerController())
-    {   
-        if (PlayerController)
+    FVector2D MousePosition;
+    if (PlayerController && PlayerController->GetMousePosition(MousePosition.X, MousePosition.Y))
+    {
+        PlayerController->DeprojectScreenPositionToWorld(MousePosition.X, MousePosition.Y, WorldLocation, WorldDirection);
+
+        FCollisionQueryParams CollisionParams;
+        CollisionParams.AddIgnoredActor(this);
+
+        if (GetWorld()->LineTraceSingleByChannel(HitResult, WorldLocation, WorldLocation + WorldDirection * 1000.f, ECC_Visibility, CollisionParams))
         {
-            FVector MouseLocation, MouseDirection;
-            PlayerController->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-
-            FVector Start = PlayerController->PlayerCameraManager->GetCameraLocation();
-            FVector End = Start + MouseDirection * 1000.f;
-
-            FHitResult HitResult;
-            FCollisionQueryParams CollisionParams;
-
-            if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
-            {
-                return HitResult.GetActor() == this;
-            }
+            AActor* HitActor = HitResult.GetActor();
+            return HitActor && HitActor == this;
         }
-    }       
+    }
 
     return false;
 }

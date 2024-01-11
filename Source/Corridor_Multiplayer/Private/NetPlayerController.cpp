@@ -3,7 +3,7 @@
 
 #include "NetPlayerController.h"
 #include "GameManager.h"
-
+#include "DraggableObstacle.h"
 
 
 ANetPlayerController::ANetPlayerController()
@@ -12,17 +12,82 @@ ANetPlayerController::ANetPlayerController()
 
 void ANetPlayerController::BeginPlay()
 {
-	bEnableClickEvents = true;
-	bShowMouseCursor = true;
-	ClickEventKeys.AddUnique(EKeys::RightMouseButton);
+    Super::BeginPlay();
+    SetupInputComponent();
+    TraceDistance = 1000.0f;
+}
 
+void ANetPlayerController::Tick(float DeltaTime)
+{
+    if (DraggableObstacle && DraggableObstacle->bIsDragging)
+    {
+        FVector MouseLocation, MouseDirection;
+        DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
+
+        FVector Start = PlayerCameraManager->GetCameraLocation();
+        FVector End = Start + MouseDirection * TraceDistance;
+
+        FHitResult HitResult;
+        if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility))
+        {
+            FVector NewLocation = HitResult.Location;
+            NewLocation.Z = DraggableObstacle->GetActorLocation().Z; 
+            DraggableObstacle->SetActorLocation(NewLocation);
+        }
+    }
+}
+
+void ANetPlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+
+    bEnableClickEvents = true;
+    bShowMouseCursor = true;
+    ClickEventKeys.AddUnique(EKeys::RightMouseButton);
+
+    if (InputComponent)
+    {
+        InputComponent->BindAction("Drag", IE_Pressed, this, &ANetPlayerController::StartDragging);
+        InputComponent->BindAction("Drag", IE_Released, this, &ANetPlayerController::StopDragging);
+        InputComponent->BindAxis("MouseWheel", this, &ANetPlayerController::OnMouseScroll);
+    }
+}
+
+void ANetPlayerController::StartDragging()
+{
+    FHitResult HitResult;
+    GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult);
+
+    if (HitResult.GetActor() && HitResult.GetActor()->IsA(ADraggableObstacle::StaticClass()))
+    {
+        DraggableObstacle = Cast<ADraggableObstacle>(HitResult.GetActor());
+        if (DraggableObstacle)
+        {
+            DraggableObstacle->StartDragging();
+        }
+    }
+}
+
+void ANetPlayerController::StopDragging()
+{
+    if(DraggableObstacle)
+    {
+        DraggableObstacle->StopDragging();
+        DraggableObstacle = nullptr;
+    }
 }
 
 void ANetPlayerController::OnActorClicked(AActor* Actor, FKey key)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnClicked: %s - %s"), *Actor->GetActorLabel(), *key.ToString());
+}
 
- 
+void ANetPlayerController::OnMouseScroll(float DeltaScroll)
+{
+    if (DraggableObstacle)
+    {
+        DraggableObstacle->RotateObstacle(DeltaScroll);
+    }
 }
 
 void ANetPlayerController::SetPlayerActive(bool bIsActive)

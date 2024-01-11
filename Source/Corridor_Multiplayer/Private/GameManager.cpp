@@ -43,7 +43,7 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
                 Players.Add(ThePlayer);
                 ThePlayer->bIsActivePlayer = false;
 
-                ANetPlayerController* Controller = GetWorld()->GetFirstPlayerController<ANetPlayerController>();
+                ANetPlayerController* Controller = GetWorld()->SpawnActor<ANetPlayerController>(ANetPlayerController::StaticClass());
                 if (Controller)
                 {
                     ThePlayer->NetPlayerController = Controller;
@@ -65,7 +65,6 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
 void AGameManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AGameManager::ActivatePlayer(int32 PlayerIndex)
@@ -102,7 +101,6 @@ void AGameManager::ActivatePlayer(int32 PlayerIndex)
     }
 
     CurrentPlayerIndex = (CurrentPlayerIndex + 1) % Players.Num(); 
-
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current Player Index: %d"), CurrentPlayerIndex));
 }
 
