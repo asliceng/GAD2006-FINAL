@@ -35,7 +35,7 @@ public:
 	UStaticMeshComponent* ObstacleMesh;
 
 	bool bIsDragging;
-	bool bCanRotate;
+	bool bCanScroll;
 
 	void StartDragging();
 	void StopDragging();

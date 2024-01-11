@@ -15,6 +15,7 @@ void ANetPlayerController::BeginPlay()
     Super::BeginPlay();
     SetupInputComponent();
     TraceDistance = 1000.0f;
+    bHasScrolled = false;
 }
 
 void ANetPlayerController::Tick(float DeltaTime)
@@ -84,9 +85,17 @@ void ANetPlayerController::OnActorClicked(AActor* Actor, FKey key)
 
 void ANetPlayerController::OnMouseScroll(float DeltaScroll)
 {
-    if (DraggableObstacle)
+    if (DeltaScroll != 0.0f && !bHasScrolled)
     {
-        DraggableObstacle->RotateObstacle(DeltaScroll);
+        if (DraggableObstacle)
+        {
+            DraggableObstacle->RotateObstacle(DeltaScroll);
+        }
+        bHasScrolled = true;
+    }
+    else if (DeltaScroll == 0.0f)
+    {
+        bHasScrolled = false;
     }
 }
 

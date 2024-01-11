@@ -22,7 +22,6 @@ ADraggableObstacle::ADraggableObstacle()
     ObstacleMesh->SetStaticMesh(DefaultSlotMesh.Object);
 
 	bIsDragging = false;
-    bCanRotate = false;
 }
 
 // Called when the game starts or when spawned
@@ -67,11 +66,16 @@ void ADraggableObstacle::StopDragging()
 
 void ADraggableObstacle::RotateObstacle(float DeltaScroll)
 {
-    if (bCanRotate)
-    {
-        FRotator CurrentRotation = Obstacle->GetComponentRotation();
+    if (bIsDragging)
+    {       
+        FRotator CurrentRotation = GetActorRotation();
         FRotator NewRotation = FRotator(CurrentRotation.Pitch, CurrentRotation.Yaw + DeltaScroll * 90.0f, CurrentRotation.Roll);
         SetActorRotation(NewRotation);
+
+        //UE_LOG(LogTemp, Warning, TEXT("CurrentRotation: %s"), *CurrentRotation.ToString());
+
+        // Log NewRotation
+        //UE_LOG(LogTemp, Warning, TEXT("NewRotation: %s"), *NewRotation.ToString());
     }
 }
 

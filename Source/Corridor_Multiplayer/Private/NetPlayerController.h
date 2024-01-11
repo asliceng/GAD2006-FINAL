@@ -34,6 +34,8 @@ public:
 
 	void OnMouseScroll(float DeltaScroll);
 
+	bool bHasScrolled;
+
 	AGameManager* GameManager;
 
 	float TraceDistance;
