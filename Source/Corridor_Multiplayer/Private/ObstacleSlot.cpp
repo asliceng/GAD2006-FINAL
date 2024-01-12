@@ -13,7 +13,7 @@ AObstacleSlot::AObstacleSlot()
 
 	Obstacle = CreateDefaultSubobject<UBoxComponent>(TEXT("Obstacle"));
 	Obstacle->SetupAttachment(RootComponent);
-	Obstacle->SetBoxExtent(FVector(10, 10, 2));
+	Obstacle->SetBoxExtent(FVector(50, 10, 2));
 	Obstacle->SetCollisionResponseToAllChannels(ECR_Block);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultSlotMesh(TEXT("/Engine/BasicShapes/Plane"));
@@ -49,11 +49,15 @@ void AObstacleSlot::SetState(EBoxState NewState)
 	}
 }
 
+EBoxState AObstacleSlot::GetState() const
+{
+	return EBoxState();
+}
+
 // Called when the game starts or when spawned
 void AObstacleSlot::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

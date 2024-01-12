@@ -51,6 +51,8 @@ public:
 	void SwitchPlayer();
 	ANetPlayerController* GetCurrentPlayer();
 
+	void RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle);
+
 	//void CreateLevelActors(FSLevelInfo& Info);
 
 protected:

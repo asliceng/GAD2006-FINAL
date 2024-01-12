@@ -73,7 +73,7 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
 
 void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
 {
-    FSPlayerInfo PInfo = UnitInfo.PlayerInfo;
+    FSPlayerInfo& PInfo = UnitInfo.PlayerInfo;
     PInfo.RemainingObstaclesNum = 10;  
 
     for (int32 i = 0; i < PInfo.RemainingObstaclesNum; ++i)
@@ -85,7 +85,6 @@ void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
 
             ADraggableObstacle* SpawnedObstacle = GetWorld()->SpawnActor<ADraggableObstacle>(UnitInfo.ObstacleClass, SpawnLocation, SpawnRotation);
 
-            //ADraggableObstacle* SpawnedObstacle = GetWorld()->SpawnActor<ADraggableObstacle>(UnitInfo.ObstacleClass->StaticClass(), SpawnLocation, SpawnRotation);
             if (SpawnedObstacle)
             {               
                 PInfo.ObstacleList.Add(SpawnedObstacle);
@@ -155,4 +154,49 @@ ANetPlayerController* AGameManager::GetCurrentPlayer()
     }
     UE_LOG(LogTemp, Warning, TEXT("ActivePlayerController : NULL"));
     return nullptr;
+}
+
+void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
+{
+    if (Levels.IsValidIndex(CurrentLevel))
+    {
+        for (auto& UnitInfo : Levels[CurrentLevel].Units)
+        {
+            FSPlayerInfo& PInfo = UnitInfo.PlayerInfo;
+
+            UE_LOG(LogTemp, Error, TEXT("ObstacleList.Num() is = %d"), UnitInfo.PlayerInfo.ObstacleList.Num());
+
+            //for (auto& Obs : PInfo.ObstacleList)
+            //{
+            //    UE_LOG(LogTemp, Error, TEXT("RemoveObstacleFromPlayerList"));
+            //    UE_LOG(LogTemp, Error, TEXT("Removed Obstacle is = %s"), *Obs->GetName());
+            //    /* if (Obs == Obstacle)
+            //     {
+            //         PInfo.ObstacleList.Remove(Obs);
+            //         PInfo.RemainingObstaclesNum--;
+
+            //         UE_LOG(LogTemp, Error, TEXT("Removed Obstacle is = %s"), *Obs->GetName());
+
+            //         break;
+            //     }*/
+            //}
+
+            for (auto ObsIt = PInfo.ObstacleList.CreateIterator(); ObsIt; ++ObsIt)
+            {
+                ADraggableObstacle* Obs = *ObsIt;
+                if (Obs == Obstacle)
+                {
+                    ObsIt.RemoveCurrent();
+                    PInfo.RemainingObstaclesNum--;
+
+                    UE_LOG(LogTemp, Error, TEXT("Removed Obstacle is = %s"), *Obs->GetName());
+
+                    break;
+                }
+            }
+
+
+        }
+    }
+    
 }

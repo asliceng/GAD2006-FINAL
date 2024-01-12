@@ -33,6 +33,8 @@ public:
 	UFUNCTION()
 	void SetState(EBoxState NewState);
 
+	EBoxState GetState() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

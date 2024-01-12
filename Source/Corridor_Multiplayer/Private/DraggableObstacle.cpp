@@ -2,6 +2,7 @@
 
 
 #include "DraggableObstacle.h"
+#include "ObstacleSlot.h"
 
 // Sets default values
 ADraggableObstacle::ADraggableObstacle()
@@ -13,7 +14,7 @@ ADraggableObstacle::ADraggableObstacle()
 
     Obstacle = CreateDefaultSubobject<UBoxComponent>(TEXT("Obstacle"));
     Obstacle->SetupAttachment(RootComponent);
-    Obstacle->SetBoxExtent(FVector(22, 10, 2));
+    Obstacle->SetBoxExtent(FVector(110, 10, 2));
     Obstacle->SetCollisionResponseToAllChannels(ECR_Block);
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultSlotMesh(TEXT("/Engine/BasicShapes/Cube"));
@@ -29,12 +30,25 @@ void ADraggableObstacle::BeginPlay()
 {
 	Super::BeginPlay();
 
-    //PlayerController = Cast<ANetPlayerController>(GetWorld()->GetFirstPlayerController());
-
     GameManager = Cast<AGameManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AGameManager::StaticClass()));
     if (!GameManager)
     {
         UE_LOG(LogTemp, Warning, TEXT("GameManager not found!"));
+    }
+    DefaultLocation = GetActorLocation();
+
+    Obstacle->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+    OverlappingSlots.Empty();
+}
+
+void ADraggableObstacle::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    if (bIsDragging)
+    {
+        CheckSlots();
     }
 }
 
@@ -60,11 +74,32 @@ void ADraggableObstacle::StopDragging()
     if (bIsDragging)
     {
         bIsDragging = false;
-        if (GameManager)
+
+        for (AObstacleSlot* OverlappingSlot : OverlappingSlots)
         {
-            GameManager->SwitchPlayer();
+            if (OverlappingSlot)
+            {
+                OverlappingSlot->SetState(EBoxState::GS_Default);
+            }
+        }
+
+        if (Slot1 && Slot2)
+        {
+            SetActorLocation(SnapToSlots());
+            RemoveFromObstacleList();
+
+            if (GameManager)
+            {
+                GameManager->SwitchPlayer();
+            }
+        }
+        else
+        {
+            SetActorLocation(DefaultLocation);
+            SetActorRotation(FRotator::ZeroRotator);
         }
     }
+   
 }
 
 void ADraggableObstacle::RotateObstacle(float DeltaScroll)
@@ -74,11 +109,6 @@ void ADraggableObstacle::RotateObstacle(float DeltaScroll)
         FRotator CurrentRotation = GetActorRotation();
         FRotator NewRotation = FRotator(CurrentRotation.Pitch, CurrentRotation.Yaw + DeltaScroll * 90.0f, CurrentRotation.Roll);
         SetActorRotation(NewRotation);
-
-        //UE_LOG(LogTemp, Warning, TEXT("CurrentRotation: %s"), *CurrentRotation.ToString());
-
-        // Log NewRotation
-        //UE_LOG(LogTemp, Warning, TEXT("NewRotation: %s"), *NewRotation.ToString());
     }
 }
 
@@ -104,5 +134,79 @@ bool ADraggableObstacle::IsMouseOver()
 
     return false;
 }
+
+FVector ADraggableObstacle::SnapToSlots()
+{   
+    FVector MidPoint = (Slot1->GetActorLocation() + Slot2->GetActorLocation()) / 2.0f;
+
+    Slot1->SetState(EBoxState::GS_Acceptable);
+    Slot2->SetState(EBoxState::GS_Acceptable);
+
+    return MidPoint;
+}
+
+void ADraggableObstacle::RemoveFromObstacleList()
+{
+    if (GameManager && Slot1 && Slot2)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Gitsin istedigim Obstacle = %s"), *this->GetName());
+        GameManager->RemoveObstacleFromPlayerList(this);
+    }
+}
+
+void ADraggableObstacle::CheckSlots()
+{
+    UE_LOG(LogTemp, Warning, TEXT("Checking..."));
+
+    Slot1 = nullptr;
+    Slot2 = nullptr;
+
+    TArray<AActor*> OverlappingActors;
+    GetOverlappingActors(OverlappingActors, AObstacleSlot::StaticClass());
+
+    for (AActor* OverlappingActor : OverlappingActors)
+    {
+        AObstacleSlot* ObstacleSlot = Cast<AObstacleSlot>(OverlappingActor);
+        FRotator ObstacleSlotRotation = ObstacleSlot->Obstacle->GetComponentRotation();
+        FRotator ObstacleRotation = Obstacle->GetComponentRotation();
+
+        if (ObstacleSlot &&
+            FMath::IsNearlyEqual(ObstacleSlotRotation.Pitch, ObstacleRotation.Pitch, KINDA_SMALL_NUMBER) &&
+            FMath::IsNearlyEqual(ObstacleSlotRotation.Yaw, ObstacleRotation.Yaw, KINDA_SMALL_NUMBER) &&
+            FMath::IsNearlyEqual(ObstacleSlotRotation.Roll, ObstacleRotation.Roll, KINDA_SMALL_NUMBER))
+        {
+            if (!Slot1)
+            {
+                Slot1 = ObstacleSlot;
+            }
+            else if (!Slot2)
+            {
+                Slot2 = ObstacleSlot;
+                break;
+            }
+
+            OverlappingSlots.Add(ObstacleSlot);  // OverlappingSlots listesine ekleyin
+        }
+    }
+
+    // Ýki slotu da bulduysak SetState iþlemini gerçekleþtir
+    if (Slot1 && Slot2)
+    {
+        Slot1->SetState(EBoxState::GS_Acceptable);
+        Slot2->SetState(EBoxState::GS_Acceptable);
+    }
+    else
+    {
+        // Eðer ObstacleSlot'lar overlap deðilse, durumu GS_Default yap
+        for (AObstacleSlot* OverlappingSlot : OverlappingSlots)
+        {
+            if (OverlappingSlot)
+            {
+                OverlappingSlot->SetState(EBoxState::GS_Default);
+            }
+        }
+    }
+}
+
 
 

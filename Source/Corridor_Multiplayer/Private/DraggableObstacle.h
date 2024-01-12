@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DraggableObstacle.generated.h"
 
+//class AUnitBaseBase;
 
 UCLASS()
 class ADraggableObstacle : public AActor
@@ -26,6 +27,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	void Tick(float DeltaTime);
 
 public:	
 	UPROPERTY(EditAnywhere)
@@ -42,9 +44,21 @@ public:
 	void RotateObstacle(float DeltaScroll);
 
 	FVector StartDragOffset;
+	FVector DefaultLocation;
 
 	bool IsMouseOver();
 
 	UPROPERTY(EditAnywhere)
 	ANetPlayerController* PlayerController;
+
+	TSet<AObstacleSlot*> OverlappingSlots;
+	FVector SnapToSlots();
+
+	AObstacleSlot* Slot1 = nullptr;
+	AObstacleSlot* Slot2 = nullptr;
+
+	void RemoveFromObstacleList();
+
+	void CheckSlots();
+
 };
