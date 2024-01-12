@@ -49,6 +49,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchPlayer();
+	ANetPlayerController* GetCurrentPlayer();
 
 	//void CreateLevelActors(FSLevelInfo& Info);
 

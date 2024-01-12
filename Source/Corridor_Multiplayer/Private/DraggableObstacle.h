@@ -45,6 +45,6 @@ public:
 
 	bool IsMouseOver();
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	ANetPlayerController* PlayerController;
 };

@@ -29,7 +29,7 @@ void ADraggableObstacle::BeginPlay()
 {
 	Super::BeginPlay();
 
-    PlayerController = Cast<ANetPlayerController>(GetWorld()->GetFirstPlayerController());
+    //PlayerController = Cast<ANetPlayerController>(GetWorld()->GetFirstPlayerController());
 
     GameManager = Cast<AGameManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AGameManager::StaticClass()));
     if (!GameManager)
@@ -40,15 +40,18 @@ void ADraggableObstacle::BeginPlay()
 
 void ADraggableObstacle::StartDragging()
 {
-    bIsDragging = true;
-
-    FVector2D MousePosition;
-    if (PlayerController->GetMousePosition(MousePosition.X, MousePosition.Y))
+    if (PlayerController && GameManager && GameManager->GetCurrentPlayer() == PlayerController)
     {
-        FVector WorldLocation, WorldDirection;
-        PlayerController->DeprojectScreenPositionToWorld(MousePosition.X, MousePosition.Y, WorldLocation, WorldDirection);
+        bIsDragging = true;
 
-        StartDragOffset = GetActorLocation() - FVector(WorldLocation.X, WorldLocation.Y, GetActorLocation().Z);
+        FVector2D MousePosition;
+        if (PlayerController->GetMousePosition(MousePosition.X, MousePosition.Y))
+        {
+            FVector WorldLocation, WorldDirection;
+            PlayerController->DeprojectScreenPositionToWorld(MousePosition.X, MousePosition.Y, WorldLocation, WorldDirection);
+
+            StartDragOffset = GetActorLocation() - FVector(WorldLocation.X, WorldLocation.Y, GetActorLocation().Z);
+        }
     }
 }
 

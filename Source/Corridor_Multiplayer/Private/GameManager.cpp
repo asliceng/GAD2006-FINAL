@@ -89,6 +89,7 @@ void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
             if (SpawnedObstacle)
             {               
                 PInfo.ObstacleList.Add(SpawnedObstacle);
+                SpawnedObstacle->PlayerController = ThePlayer->NetPlayerController;
             }
         }
         else
@@ -144,4 +145,14 @@ void AGameManager::ActivatePlayer(int32 PlayerIndex)
 void AGameManager::SwitchPlayer()
 {
     ActivatePlayer(CurrentPlayerIndex);
+}
+
+ANetPlayerController* AGameManager::GetCurrentPlayer()
+{
+    if (Players.IsValidIndex(CurrentPlayerIndex))
+    {
+        return Players[CurrentPlayerIndex]->NetPlayerController;
+    }
+    UE_LOG(LogTemp, Warning, TEXT("ActivePlayerController : NULL"));
+    return nullptr;
 }
