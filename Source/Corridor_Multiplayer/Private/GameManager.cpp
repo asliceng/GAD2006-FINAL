@@ -2,6 +2,8 @@
 
 
 #include "GameManager.h"
+#include "DraggableObstacle.h"
+
 
 // Sets default values
 AGameManager::AGameManager()
@@ -12,7 +14,6 @@ AGameManager::AGameManager()
 	PlayerClasses.Add(APlayerUnitBase::StaticClass());
 
 	ActivePlayerIndex = -1; 
-
 }
 
 void AGameManager::BeginPlay()
@@ -52,13 +53,49 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
                 {
                     UE_LOG(LogTemp, Error, TEXT("NetPlayerController not found."));
                 }
+
+                SpawnObstaclesForPlayer(UnitInfo);
             }
-        }
+        }       
+    }    
+
+    if (Players.Num() > 0)
+    {
+        ActivePlayerIndex = (ActivePlayerIndex + 1) % Players.Num();
+        ActivatePlayer(ActivePlayerIndex);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Player Num = %d"), Players.Num());
     }
 
-    ActivePlayerIndex = (ActivePlayerIndex + 1) % Players.Num();
-    ActivatePlayer(ActivePlayerIndex);
+}
 
+void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
+{
+    FSPlayerInfo PInfo = UnitInfo.PlayerInfo;
+    PInfo.RemainingObstaclesNum = 10;  
+
+    for (int32 i = 0; i < PInfo.RemainingObstaclesNum; ++i)
+    {
+        if (UnitInfo.ObstacleClass)
+        {
+            FVector SpawnLocation = UnitInfo.ObstacleSpawnLocation + FVector(i * 100, 0, 0);
+            FRotator SpawnRotation = FRotator::ZeroRotator;
+
+            ADraggableObstacle* SpawnedObstacle = GetWorld()->SpawnActor<ADraggableObstacle>(UnitInfo.ObstacleClass, SpawnLocation, SpawnRotation);
+
+            //ADraggableObstacle* SpawnedObstacle = GetWorld()->SpawnActor<ADraggableObstacle>(UnitInfo.ObstacleClass->StaticClass(), SpawnLocation, SpawnRotation);
+            if (SpawnedObstacle)
+            {               
+                PInfo.ObstacleList.Add(SpawnedObstacle);
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("UnitInfo.ObstacleClass not found"));
+        }
+    }
 }
 
 // Called every frame

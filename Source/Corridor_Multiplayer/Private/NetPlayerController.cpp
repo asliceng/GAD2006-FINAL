@@ -14,7 +14,7 @@ void ANetPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     SetupInputComponent();
-    TraceDistance = 1000.0f;
+    TraceDistance = 10000.0f;
     bHasScrolled = false;
 }
 

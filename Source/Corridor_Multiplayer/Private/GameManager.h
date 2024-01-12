@@ -9,6 +9,8 @@
 #include "NetPlayerController.h"
 #include "GameManager.generated.h"
 
+class DraggableObstacle;
+
 USTRUCT(BlueprintType)
 struct FSLevelInfo
 {
@@ -33,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetupPlayers(FSLevelInfo& Info);
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int CurrentLevel;
 
@@ -44,8 +49,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchPlayer();
-
-
 
 	//void CreateLevelActors(FSLevelInfo& Info);
 

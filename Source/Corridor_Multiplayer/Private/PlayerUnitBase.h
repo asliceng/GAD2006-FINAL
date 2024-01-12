@@ -8,6 +8,8 @@
 #include "NetPlayerController.h"
 #include "PlayerUnitBase.generated.h"
 
+class DraggableObstacle;
+
 USTRUCT(BlueprintType)
 struct FSPlayerInfo
 {
@@ -17,7 +19,11 @@ struct FSPlayerInfo
 	FColor PlayerColor;
 
 	//PlayerLocation
-	//RemainingObstaclesNum
+	UPROPERTY(EditAnywhere)
+	float RemainingObstaclesNum;
+
+	UPROPERTY(EditAnywhere)
+	TArray<ADraggableObstacle*> ObstacleList;
 
 	bool Ready;
 };
@@ -31,7 +37,15 @@ struct FSUnitInfo
 	TSubclassOf<APlayerUnitBase> UnitClass;
 
 	UPROPERTY(EditAnywhere)
+	TSubclassOf<ADraggableObstacle> ObstacleClass;
+
+	FSPlayerInfo PlayerInfo;
+
+	UPROPERTY(EditAnywhere)
 	FSBoxPosition StartPosition;
+
+	UPROPERTY(EditAnywhere)
+	FVector ObstacleSpawnLocation;
 };
 
 UCLASS()

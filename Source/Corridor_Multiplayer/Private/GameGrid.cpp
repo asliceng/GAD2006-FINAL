@@ -7,8 +7,8 @@ AGameGrid* AGameGrid::GameGrid = nullptr;
 
 // Sets default values
 AGameGrid::AGameGrid() :
-	NumCols(5),
-	NumRows(5)
+	NumCols(9),
+	NumRows(9)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

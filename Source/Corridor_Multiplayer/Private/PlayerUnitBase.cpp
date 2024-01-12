@@ -3,6 +3,8 @@
 
 #include "PlayerUnitBase.h"
 #include "BoxSlot.h"
+#include "DraggableObstacle.h"
+
 
 // Sets default values
 APlayerUnitBase::APlayerUnitBase()
