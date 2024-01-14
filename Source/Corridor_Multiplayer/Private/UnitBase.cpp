@@ -49,20 +49,11 @@ void AUnitBase::ChangeSlotType(ESlotType SlotType)
 	AssignToSlot(SlotTypeIndex);
 }
 
-void AUnitBase::OnActorClicked(AActor* TouchedActor, FKey ButtonPressed)
-{
-	if (auto PlayerController = GWorld->GetFirstPlayerController<ANetPlayerController>())
-	{
-		PlayerController->OnActorClicked(this, ButtonPressed);
-	}
-}
 
 // Called when the game starts or when spawned
 void AUnitBase::BeginPlay()
 {
 	Super::BeginPlay();
-	OnClicked.AddUniqueDynamic(this, &AUnitBase::OnActorClicked);
-
 }
 
 // Called every frame

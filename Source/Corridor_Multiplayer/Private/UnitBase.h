@@ -31,9 +31,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESlotType SlotTypeEnum;
 
-	UFUNCTION()
-	void OnActorClicked(AActor* TouchedActor, FKey ButtonPressed);
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

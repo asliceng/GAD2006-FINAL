@@ -9,6 +9,7 @@
 #include "Components/ChildActorComponent.h"
 #include "GameGrid.generated.h"
 
+class AGameManager;
 UCLASS()
 class AGameGrid : public AActor
 {
@@ -44,6 +45,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<UChildActorComponent*> GridActors;
+
+	UPROPERTY(EditAnywhere)
+	AGameManager* GameManager;
 
 protected:
 	// Called when the game starts or when spawned

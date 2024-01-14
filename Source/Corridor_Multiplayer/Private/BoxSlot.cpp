@@ -3,6 +3,7 @@
 
 #include "BoxSlot.h"
 #include "NetPlayerController.h"
+#include "GameManager.h"
 #include "PlayerUnitBase.h"
 
 // Sets default values
@@ -26,12 +27,10 @@ ABoxSlot::ABoxSlot()
 	SetState(GS_Default);
 }
 
-void ABoxSlot::OnGridClicked(AActor* TouchedActor, FKey ButtonPressed)
+void ABoxSlot::OnActorClicked(AActor* TouchedBox, FKey ButtonPressed)
 {
-	if (auto PlayerController = GWorld->GetFirstPlayerController<ANetPlayerController>())
-	{
-		PlayerController->OnActorClicked(this, ButtonPressed);
-	}
+	if (GameManager) GameManager->OnActorClicked(TouchedBox);
+	else UE_LOG(LogTemp, Error, TEXT("gm yok yok yok yok yok"));
 }
 
 void ABoxSlot::SpawnPlayerUnitHere(TSubclassOf<APlayerUnitBase>& UnitClass)
@@ -69,16 +68,11 @@ void ABoxSlot::SetState(EBoxState NewState)
 	}
 }
 
-//FString ABoxSlot::GetSlotName() const
-//{
-//	return SlotName;
-//}
-
 // Called when the game starts or when spawned
 void ABoxSlot::BeginPlay()
 {
 	Super::BeginPlay();
-	OnClicked.AddUniqueDynamic(this, &ABoxSlot::OnGridClicked);	
+	OnClicked.AddUniqueDynamic(this, &ABoxSlot::OnActorClicked);	
 }
 
 // Called every frame

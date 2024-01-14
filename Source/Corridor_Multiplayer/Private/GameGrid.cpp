@@ -118,7 +118,7 @@ void AGameGrid::SpawnAndLocateSlots(bool bIsItObstacle)
 					GridActors.Add(Grid);
 					Grid->SetChildActorClass(BoxClass);
 					ABoxSlot* BoxSlot = Cast<ABoxSlot>(Grid->GetChildActor());
-
+					BoxSlot->GameManager = GameManager;
 					BoxSlot->SetActorLabel(BoxName.ToString());
 					BoxSlot->BoxPosition.Col = j;
 					BoxSlot->BoxPosition.Row = i;

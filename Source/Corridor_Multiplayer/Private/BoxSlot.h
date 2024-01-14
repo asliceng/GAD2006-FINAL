@@ -9,6 +9,7 @@
 #include "BoxSlot.generated.h"
 
 class APlayerUnitBase;
+class AGameManager;
 
 USTRUCT(Blueprintable)
 struct FSBoxPosition
@@ -55,8 +56,10 @@ public:
 
 	EBoxState BoxState;
 
+	AGameManager* GameManager;
+
 	UFUNCTION()
-	void OnGridClicked(AActor* TouchedActor, FKey ButtonPressed);
+	void OnActorClicked(AActor* TouchedBox, FKey ButtonPressed);
 
 	UPROPERTY(VisibleAnywhere)
 	APlayerUnitBase* Unit;
@@ -65,10 +68,6 @@ public:
 
 	UFUNCTION()
 	void SetState(EBoxState NewState);
-
-	//FString GetSlotName() const;
-	FString SlotName;
-
 
 protected:
 	// Called when the game starts or when spawned

@@ -30,13 +30,9 @@ public:
 	void StartDragging();
 	void StopDragging();
 
-	void OnActorClicked(AActor* Actor, FKey key);
-
 	void OnMouseScroll(float DeltaScroll);
 
 	bool bHasScrolled;
-
-	AGameManager* GameManager;
 
 	float TraceDistance;
 

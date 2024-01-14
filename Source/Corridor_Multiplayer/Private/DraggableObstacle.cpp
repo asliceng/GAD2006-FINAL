@@ -37,8 +37,6 @@ void ADraggableObstacle::BeginPlay()
     }
     DefaultLocation = GetActorLocation();
 
-    Obstacle->SetCollisionResponseToAllChannels(ECR_Overlap);
-
     OverlappingSlots.Empty();
 }
 
@@ -219,8 +217,6 @@ bool ADraggableObstacle::CheckObstacles()
             bItIsNotObs = false;
         }       
     }
-
-    UE_LOG(LogTemp, Error, TEXT("bItIsNotObs: %s"), bItIsNotObs ? TEXT("true") : TEXT("false"));
     return bItIsNotObs;
 }
 

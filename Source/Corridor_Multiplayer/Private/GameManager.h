@@ -29,6 +29,8 @@ public:
 	// Sets default values for this actor's properties
 	AGameManager();
 
+	void OnActorClicked(AActor* SelectedBox);
+
 	UPROPERTY(EditAnywhere)
 	AGameGrid* GameGrid;
 
@@ -53,8 +55,9 @@ public:
 
 	bool CheckBoxSlots();
 	TArray<ABoxSlot*> AcceptableBoxes;
-
 	void ClearBoxesState();
+
+	int32 CheckHitInDirection(const APlayerUnitBase* Player, const FVector& TraceDirection);
 
 	void RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle);
 

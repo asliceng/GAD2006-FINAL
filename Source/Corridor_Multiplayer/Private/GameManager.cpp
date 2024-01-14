@@ -3,6 +3,7 @@
 
 #include "GameManager.h"
 #include "DraggableObstacle.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 // Sets default values
@@ -14,6 +15,20 @@ AGameManager::AGameManager()
 	PlayerClasses.Add(APlayerUnitBase::StaticClass());
 
 	ActivePlayerIndex = -1; 
+}
+
+void AGameManager::OnActorClicked(AActor* SelectedBox)
+{
+    APlayerUnitBase* Player = Players[CurrentPlayerIndex];
+    ABoxSlot* Slot = Cast<ABoxSlot>(SelectedBox);
+
+    if (!Slot) return;
+
+    if (Slot->BoxState == EBoxState::GS_Acceptable)
+    {
+        Player->AssignToSlot(Slot);
+        SwitchPlayer();
+    }
 }
 
 void AGameManager::BeginPlay()
@@ -148,7 +163,7 @@ ANetPlayerController* AGameManager::GetCurrentPlayer()
 bool AGameManager::CheckBoxSlots()
 {
     APlayerUnitBase* Player = Players[CurrentPlayerIndex];
-
+    
     if (Player)
     {       
         ABoxSlot* PlayerBoxSlot = AGameGrid::FindBoxSlot(Player->Slot->BoxPosition);
@@ -170,27 +185,45 @@ bool AGameManager::CheckBoxSlots()
 
         if (PlayerBoxSlot)
         {
-            if (Row - 1 >= 0) //Up
-            {
-                ABoxSlot* UpSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row - 1));
+            int32 SkipBox = 1;
+
+            /*if (CheckHitInDirection(Player, FVector::ForwardVector) == 2) SkipBox = 2;
+            else SkipBox = 1;*/
+            if (Row - SkipBox >= 0 && CheckHitInDirection(Player, FVector::ForwardVector) != 1) //Up
+            {        
+                ABoxSlot* UpSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row - SkipBox));
                 UpSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(UpSlot);
-            }           
-            if (Row + 1 <= 8) //Down
+            }
+
+            if (CheckHitInDirection(Player, FVector::BackwardVector) == 2) SkipBox = 2;
+            else SkipBox = 1;
+            if (Row + SkipBox <= 8 && CheckHitInDirection(Player, FVector::BackwardVector) != 1) //Down
             {
-                ABoxSlot* DownSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row + 1));
+                
+
+                ABoxSlot* DownSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row + SkipBox));
                 DownSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(DownSlot);
             }
-            if (Col + 1 <= 8) //Right
+
+            if (CheckHitInDirection(Player, FVector::RightVector) == 2) SkipBox = 2;
+            else SkipBox = 1;
+            if (Col + SkipBox <= 8 && CheckHitInDirection(Player, FVector::RightVector)!= 1) //Right
             {
-                ABoxSlot* RightSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col + 1, Row));
+               
+
+                ABoxSlot* RightSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col + SkipBox, Row));
                 RightSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(RightSlot);
             }
-            if (Col - 1 >= 0) //Left
+            if (CheckHitInDirection(Player, FVector::LeftVector) == 2) SkipBox = 2;
+            else SkipBox = 1;
+            if (Col - SkipBox >= 0 && CheckHitInDirection(Player, FVector::LeftVector) != 1) //Left
             {
-                ABoxSlot* LeftSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col - 1, Row));
+                
+
+                ABoxSlot* LeftSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col - SkipBox, Row));
                 LeftSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(LeftSlot);
             }
@@ -212,6 +245,51 @@ void AGameManager::ClearBoxesState()
         Box->SetState(EBoxState::GS_Default);
     }
     AcceptableBoxes.Empty();
+}
+
+int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVector& TraceDirection)
+{
+    //0 = nothing
+    //1 = Obstacle
+    //2 = Opponent
+    TArray<FHitResult> HitResults;
+    const FVector& StartLocation = Player->GetActorLocation() + FVector (0,0,30);
+    float TraceDistance = 100;
+    FVector EndLocation = StartLocation + TraceDirection * TraceDistance;
+
+    // Linetrace
+    FCollisionQueryParams CollisionParams;
+    TEnumAsByte<ETraceTypeQuery> TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
+    CollisionParams.AddIgnoredActor(Player);
+
+    bool bHit = GetWorld()->LineTraceMultiByChannel(HitResults, StartLocation, EndLocation, ECC_Visibility, CollisionParams);
+
+    if (bHit)
+    {
+        for (const FHitResult& HitResult : HitResults)
+        {
+            DrawDebugLine(GetWorld(), StartLocation, HitResult.ImpactPoint, FColor::Green, false, 10, 0, 10); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma oldu
+
+            AActor* HitActor = HitResult.GetActor();
+            ADraggableObstacle* DraggableObstacle = Cast<ADraggableObstacle>(HitActor);
+            if (DraggableObstacle)
+            {
+                UE_LOG(LogTemp, Error, TEXT("DraggableObs"));
+                return 1; 
+            }
+
+            APlayerUnitBase* PlayerUnit = Cast<APlayerUnitBase>(HitActor);
+            if (PlayerUnit)
+            {
+                UE_LOG(LogTemp, Error, TEXT("APlayerUnitBase hit"));
+                return 2;
+            }
+        }
+    }      
+    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10, 0, 2.0f); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma olmadý
+    UE_LOG(LogTemp, Error, TEXT("Nothing"));
+
+    return 0;
 }
 
 void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
