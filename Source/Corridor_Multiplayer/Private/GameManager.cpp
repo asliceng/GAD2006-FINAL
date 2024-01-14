@@ -123,21 +123,11 @@ void AGameManager::ActivatePlayer(int32 PlayerIndex)
                 UE_LOG(LogTemp, Error, TEXT("NetPlayerController not found for ThePlayer at index %d."), i);
             }
         }      
-
-        if (ThePlayer->bIsActivePlayer)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Player Index: %d   TRUE"), i);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Player Index: %d   FALSE"), i);
-
-        }
-
     }
 
     CurrentPlayerIndex = (CurrentPlayerIndex + 1) % Players.Num(); 
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current Player Index: %d"), CurrentPlayerIndex));
+    ClearBoxesState();
+    CheckBoxSlots();
 }
 
 void AGameManager::SwitchPlayer()
@@ -153,6 +143,75 @@ ANetPlayerController* AGameManager::GetCurrentPlayer()
     }
     UE_LOG(LogTemp, Warning, TEXT("ActivePlayerController : NULL"));
     return nullptr;
+}
+
+bool AGameManager::CheckBoxSlots()
+{
+    APlayerUnitBase* Player = Players[CurrentPlayerIndex];
+
+    if (Player)
+    {       
+        ABoxSlot* PlayerBoxSlot = AGameGrid::FindBoxSlot(Player->Slot->BoxPosition);
+        FString BoxName = PlayerBoxSlot->GetActorLabel();
+
+        BoxName.ReplaceInline(TEXT("Box"), TEXT(""));
+        TArray<FString> StringParts;
+        BoxName.ParseIntoArray(StringParts, TEXT("x"), true);
+
+        int32 Col, Row;
+        if (StringParts.Num() == 2)
+        {
+            FString ColString = StringParts[0];
+            FString RowString = StringParts[1]; 
+
+            Col = FCString::Atoi(*ColString);
+            Row = FCString::Atoi(*RowString);
+        }
+
+        if (PlayerBoxSlot)
+        {
+            if (Row - 1 >= 0) //Up
+            {
+                ABoxSlot* UpSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row - 1));
+                UpSlot->SetState(EBoxState::GS_Acceptable);
+                AcceptableBoxes.Add(UpSlot);
+            }           
+            if (Row + 1 <= 8) //Down
+            {
+                ABoxSlot* DownSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row + 1));
+                DownSlot->SetState(EBoxState::GS_Acceptable);
+                AcceptableBoxes.Add(DownSlot);
+            }
+            if (Col + 1 <= 8) //Right
+            {
+                ABoxSlot* RightSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col + 1, Row));
+                RightSlot->SetState(EBoxState::GS_Acceptable);
+                AcceptableBoxes.Add(RightSlot);
+            }
+            if (Col - 1 >= 0) //Left
+            {
+                ABoxSlot* LeftSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col - 1, Row));
+                LeftSlot->SetState(EBoxState::GS_Acceptable);
+                AcceptableBoxes.Add(LeftSlot);
+            }
+
+            return true;
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Player's current slot not found!"));
+        }
+    }
+    return false;
+}
+
+void AGameManager::ClearBoxesState()
+{
+    for (auto Box : AcceptableBoxes)
+    {
+        Box->SetState(EBoxState::GS_Default);
+    }
+    AcceptableBoxes.Empty();
 }
 
 void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)

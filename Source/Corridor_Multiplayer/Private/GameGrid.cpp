@@ -72,7 +72,6 @@ void AGameGrid::SpawnAndLocateSlots(bool bIsItObstacle)
 			else
 			{
 				Grid = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), BoxName);
-
 			}
 
 			if (Grid != nullptr)

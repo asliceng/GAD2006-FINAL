@@ -51,6 +51,11 @@ public:
 	void SwitchPlayer();
 	ANetPlayerController* GetCurrentPlayer();
 
+	bool CheckBoxSlots();
+	TArray<ABoxSlot*> AcceptableBoxes;
+
+	void ClearBoxesState();
+
 	void RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle);
 
 protected:

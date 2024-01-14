@@ -69,6 +69,11 @@ void ABoxSlot::SetState(EBoxState NewState)
 	}
 }
 
+//FString ABoxSlot::GetSlotName() const
+//{
+//	return SlotName;
+//}
+
 // Called when the game starts or when spawned
 void ABoxSlot::BeginPlay()
 {

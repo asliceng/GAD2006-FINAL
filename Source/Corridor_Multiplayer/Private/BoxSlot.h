@@ -66,6 +66,10 @@ public:
 	UFUNCTION()
 	void SetState(EBoxState NewState);
 
+	//FString GetSlotName() const;
+	FString SlotName;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
