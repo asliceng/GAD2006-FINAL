@@ -53,8 +53,6 @@ public:
 
 	void RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle);
 
-	//void CreateLevelActors(FSLevelInfo& Info);
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

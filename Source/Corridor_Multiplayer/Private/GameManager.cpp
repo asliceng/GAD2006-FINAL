@@ -68,7 +68,6 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
     {
         UE_LOG(LogTemp, Error, TEXT("Player Num = %d"), Players.Num());
     }
-
 }
 
 void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
@@ -181,8 +180,9 @@ void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
             //     }*/
             //}
 
-            for (auto ObsIt = PInfo.ObstacleList.CreateIterator(); ObsIt; ++ObsIt)
+            /*for (auto ObsIt = PInfo.ObstacleList.CreateIterator(); ObsIt; ++ObsIt)
             {
+                UE_LOG(LogTemp, Error, TEXT("girdi"));
                 ADraggableObstacle* Obs = *ObsIt;
                 if (Obs == Obstacle)
                 {
@@ -193,9 +193,7 @@ void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
 
                     break;
                 }
-            }
-
-
+            }*/
         }
     }
     

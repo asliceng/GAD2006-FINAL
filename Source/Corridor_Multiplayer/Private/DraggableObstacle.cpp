@@ -48,7 +48,7 @@ void ADraggableObstacle::Tick(float DeltaTime)
 
     if (bIsDragging)
     {
-        CheckSlots();
+        CanPlaceObstacle();
     }
 }
 
@@ -83,7 +83,9 @@ void ADraggableObstacle::StopDragging()
             }
         }
 
-        if (Slot1 && Slot2)
+        OverlappingSlots.Empty();
+
+        if (CanPlaceObstacle())
         {
             SetActorLocation(SnapToSlots());
             RemoveFromObstacleList();
@@ -98,8 +100,7 @@ void ADraggableObstacle::StopDragging()
             SetActorLocation(DefaultLocation);
             SetActorRotation(FRotator::ZeroRotator);
         }
-    }
-   
+    }  
 }
 
 void ADraggableObstacle::RotateObstacle(float DeltaScroll)
@@ -154,10 +155,8 @@ void ADraggableObstacle::RemoveFromObstacleList()
     }
 }
 
-void ADraggableObstacle::CheckSlots()
+bool ADraggableObstacle::CheckSlots()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Checking..."));
-
     Slot1 = nullptr;
     Slot2 = nullptr;
 
@@ -182,31 +181,57 @@ void ADraggableObstacle::CheckSlots()
             else if (!Slot2)
             {
                 Slot2 = ObstacleSlot;
-                break;
             }
-
-            OverlappingSlots.Add(ObstacleSlot);  // OverlappingSlots listesine ekleyin
+            OverlappingSlots.Add(ObstacleSlot);
         }
     }
 
-    // Ýki slotu da bulduysak SetState iþlemini gerçekleþtir
     if (Slot1 && Slot2)
     {
-        Slot1->SetState(EBoxState::GS_Acceptable);
-        Slot2->SetState(EBoxState::GS_Acceptable);
-    }
-    else
-    {
-        // Eðer ObstacleSlot'lar overlap deðilse, durumu GS_Default yap
-        for (AObstacleSlot* OverlappingSlot : OverlappingSlots)
+        if (CheckObstacles())
         {
-            if (OverlappingSlot)
-            {
-                OverlappingSlot->SetState(EBoxState::GS_Default);
-            }
+            Slot1->SetState(EBoxState::GS_Acceptable);
+            Slot2->SetState(EBoxState::GS_Acceptable);
+
+            return true;
         }
+        else
+        {
+            Slot1->SetState(EBoxState::GS_Unacceptable);
+            Slot2->SetState(EBoxState::GS_Unacceptable);
+        }        
     }
+
+    return false;
 }
 
+bool ADraggableObstacle::CheckObstacles()
+{
+    bool bItIsNotObs = true;
 
+    TArray<AActor*> OverlappingActors;
+    GetOverlappingActors(OverlappingActors, ADraggableObstacle::StaticClass());
+    for (AActor* OverlappingActor : OverlappingActors)
+    {
+        if (OverlappingActor == this || OverlappingActor->IsA(ADraggableObstacle::StaticClass()))
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Obstaclelar cakisiyor!!"));
+            bItIsNotObs = false;
+        }       
+    }
+
+    UE_LOG(LogTemp, Error, TEXT("bItIsNotObs: %s"), bItIsNotObs ? TEXT("true") : TEXT("false"));
+    return bItIsNotObs;
+}
+
+bool ADraggableObstacle::CanPlaceObstacle()
+{
+    if(CheckSlots() &&
+        CheckObstacles())
+    {
+        return true;
+    }
+    
+    return false;
+}
 

@@ -59,6 +59,8 @@ public:
 
 	void RemoveFromObstacleList();
 
-	void CheckSlots();
+	bool CanPlaceObstacle();
+	bool CheckSlots();
+	bool CheckObstacles();
 
 };
