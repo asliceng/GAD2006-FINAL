@@ -11,6 +11,11 @@ APlayerUnitBase::APlayerUnitBase()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMesh->SetupAttachment(RootComponent);
 }
 
 void APlayerUnitBase::AssignToSlot(ABoxSlot* NewSlot)
@@ -22,6 +27,11 @@ void APlayerUnitBase::AssignToSlot(ABoxSlot* NewSlot)
 	Slot->Unit = this;
 	SetActorLocation(Slot->GetActorLocation() + StartOffset);
 }
+
+//FColor APlayerUnitBase::PlayerColor()
+//{
+//	return PInfo.PlayerColor;
+//}
 
 // Called when the game starts or when spawned
 void APlayerUnitBase::BeginPlay()

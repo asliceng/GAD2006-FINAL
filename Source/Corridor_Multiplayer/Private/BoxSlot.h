@@ -51,6 +51,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Plane;
 
+	UMaterialInterface* DefaultMaterial;
+
 	UPROPERTY(BlueprintReadWrite)
 	FSBoxPosition BoxPosition;
 

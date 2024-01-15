@@ -27,6 +27,18 @@ void AGameManager::OnActorClicked(AActor* SelectedBox)
     if (Slot->BoxState == EBoxState::GS_Acceptable)
     {
         Player->AssignToSlot(Slot);
+
+        for (auto Box : Player->WinningBoxes)
+        {
+            if (Slot == Box)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("%s kazandý: %s"), *Player->GetActorLabel(), *Slot->GetActorLabel());
+                WinnerPlayer = Player;
+                OnGameOverScreen();
+                return;
+            }
+        }
+        
         SwitchPlayer();
     }
 }
@@ -58,6 +70,8 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
                 ThePlayer = Slot->Unit;
                 Players.Add(ThePlayer);
                 ThePlayer->bIsActivePlayer = false;
+                ThePlayer->StaticMesh->SetOverlayMaterial(UnitInfo.PlayerInfo.PlayerColor);
+                //ThePlayer->PInfo = UnitInfo.PlayerInfo;
 
                 ANetPlayerController* Controller = GetWorld()->SpawnActor<ANetPlayerController>(ANetPlayerController::StaticClass());
                 if (Controller)
@@ -69,6 +83,7 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
                     UE_LOG(LogTemp, Error, TEXT("NetPlayerController not found."));
                 }
 
+                SetPlayerWinningBoxes(UnitInfo, Slot);
                 SpawnObstaclesForPlayer(UnitInfo);
             }
         }       
@@ -110,6 +125,29 @@ void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
             UE_LOG(LogTemp, Error, TEXT("UnitInfo.ObstacleClass not found"));
         }
     }
+}
+
+void AGameManager::SetPlayerWinningBoxes(FSUnitInfo& UnitInfo, ABoxSlot* Slot)
+{
+    APlayerUnitBase* Player = ThePlayer;
+    FSBoxPosition PlayerSlotPosition = Slot->BoxPosition;
+    int32 WinningCol;
+
+    if (PlayerSlotPosition.Col == 0) WinningCol = 8;
+    else WinningCol = 0;
+
+    // Oyuncunun bulunduðu sütunun tüm BoxSlot'larýný WinningBoxes'e ekle
+    for (int32 Row = 0; Row < GameGrid->NumRows; ++Row)
+    {
+        ABoxSlot* WinningBox = AGameGrid::FindBoxSlot(FSBoxPosition(WinningCol, Row));
+        if (WinningBox)
+        {
+            Player->WinningBoxes.Add(WinningBox);      
+            //WinningBox->Plane->SetOverlayMaterial(UnitInfo.PlayerInfo.PlayerColor);
+            //WinningBox->DefaultMaterial = UnitInfo.PlayerInfo.PlayerColor;
+        }
+    }
+    
 }
 
 // Called every frame
@@ -185,48 +223,77 @@ bool AGameManager::CheckBoxSlots()
 
         if (PlayerBoxSlot)
         {
-            int32 SkipBox = 1;
+            int32 SkipBox;
+            bool bHitPlayer = false;
 
-            /*if (CheckHitInDirection(Player, FVector::ForwardVector) == 2) SkipBox = 2;
-            else SkipBox = 1;*/
-            if (Row - SkipBox >= 0 && CheckHitInDirection(Player, FVector::ForwardVector) != 1) //Up
+            //Up
+            if (CheckHitInDirection(Player, FVector::ForwardVector, bHitPlayer) == 2)
+            {
+                SkipBox = 2;
+                    Player = Players[(CurrentPlayerIndex + 1) % Players.Num()];
+                    bHitPlayer = true;
+            }
+            else SkipBox = 1;
+            if (Row - SkipBox >= 0 && CheckHitInDirection(Player, FVector::ForwardVector, bHitPlayer) != 1)
             {        
                 ABoxSlot* UpSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row - SkipBox));
                 UpSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(UpSlot);
             }
+            Player = Players[CurrentPlayerIndex];
+            bHitPlayer = false;
 
-            if (CheckHitInDirection(Player, FVector::BackwardVector) == 2) SkipBox = 2;
-            else SkipBox = 1;
-            if (Row + SkipBox <= 8 && CheckHitInDirection(Player, FVector::BackwardVector) != 1) //Down
+
+            //Down
+            if (CheckHitInDirection(Player, FVector::BackwardVector, bHitPlayer) == 2)
             {
-                
-
+                SkipBox = 2;
+                Player = Players[(CurrentPlayerIndex + 1) % Players.Num()];
+                bHitPlayer = true;
+            }
+            else SkipBox = 1;
+            if (Row + SkipBox <= 8 && CheckHitInDirection(Player, FVector::BackwardVector, bHitPlayer) != 1)
+            {
                 ABoxSlot* DownSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col, Row + SkipBox));
                 DownSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(DownSlot);
             }
+            bHitPlayer = false;
+            Player = Players[CurrentPlayerIndex];
 
-            if (CheckHitInDirection(Player, FVector::RightVector) == 2) SkipBox = 2;
-            else SkipBox = 1;
-            if (Col + SkipBox <= 8 && CheckHitInDirection(Player, FVector::RightVector)!= 1) //Right
+            //Right
+            if (CheckHitInDirection(Player, FVector::RightVector, bHitPlayer) == 2)
             {
-               
-
+                SkipBox = 2;
+                Player = Players[(CurrentPlayerIndex + 1) % Players.Num()];
+                bHitPlayer = true;
+            }
+            else SkipBox = 1;
+            if (Col + SkipBox <= 8 && CheckHitInDirection(Player, FVector::RightVector, bHitPlayer)!= 1)
+            {
                 ABoxSlot* RightSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col + SkipBox, Row));
                 RightSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(RightSlot);
             }
-            if (CheckHitInDirection(Player, FVector::LeftVector) == 2) SkipBox = 2;
-            else SkipBox = 1;
-            if (Col - SkipBox >= 0 && CheckHitInDirection(Player, FVector::LeftVector) != 1) //Left
-            {
-                
+            bHitPlayer = false;
+            Player = Players[CurrentPlayerIndex];
 
+            //Left
+            if (CheckHitInDirection(Player, FVector::LeftVector, bHitPlayer) == 2)
+            {
+                SkipBox = 2;
+                Player = Players[(CurrentPlayerIndex + 1) % Players.Num()];
+                bHitPlayer = true;
+            }
+            else SkipBox = 1; 
+            if (Col - SkipBox >= 0 && CheckHitInDirection(Player, FVector::LeftVector, bHitPlayer) != 1)
+            {
                 ABoxSlot* LeftSlot = AGameGrid::FindBoxSlot(FSBoxPosition(Col - SkipBox, Row));
                 LeftSlot->SetState(EBoxState::GS_Acceptable);
                 AcceptableBoxes.Add(LeftSlot);
             }
+            bHitPlayer = false;
+            Player = Players[CurrentPlayerIndex];
 
             return true;
         }
@@ -247,7 +314,7 @@ void AGameManager::ClearBoxesState()
     AcceptableBoxes.Empty();
 }
 
-int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVector& TraceDirection)
+int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVector& TraceDirection, bool bHitPlayer)
 {
     //0 = nothing
     //1 = Obstacle
@@ -268,7 +335,7 @@ int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVe
     {
         for (const FHitResult& HitResult : HitResults)
         {
-            DrawDebugLine(GetWorld(), StartLocation, HitResult.ImpactPoint, FColor::Green, false, 10, 0, 10); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma oldu
+            DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 10, 0, 10); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma oldu
 
             AActor* HitActor = HitResult.GetActor();
             ADraggableObstacle* DraggableObstacle = Cast<ADraggableObstacle>(HitActor);
@@ -277,18 +344,21 @@ int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVe
                 UE_LOG(LogTemp, Error, TEXT("DraggableObs"));
                 return 1; 
             }
-
-            APlayerUnitBase* PlayerUnit = Cast<APlayerUnitBase>(HitActor);
-            if (PlayerUnit)
+           
+            if (!bHitPlayer)
             {
-                UE_LOG(LogTemp, Error, TEXT("APlayerUnitBase hit"));
-                return 2;
-            }
+                APlayerUnitBase* PlayerUnit = Cast<APlayerUnitBase>(HitActor);
+                if (PlayerUnit)
+                {
+                    UE_LOG(LogTemp, Error, TEXT("APlayerUnitBase hit"));
+                    return 2;
+                }
+            }                       
         }
     }      
     DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10, 0, 2.0f); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma olmadý
     UE_LOG(LogTemp, Error, TEXT("Nothing"));
-
+    CollisionParams.ClearIgnoredActors();
     return 0;
 }
 
@@ -335,3 +405,4 @@ void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
     }
     
 }
+

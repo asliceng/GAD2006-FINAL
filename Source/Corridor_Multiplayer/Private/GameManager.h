@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo);
 
+	UFUNCTION()
+	void SetPlayerWinningBoxes(FSUnitInfo& UnitInfo, ABoxSlot* Slot);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int CurrentLevel;
 
@@ -57,9 +60,15 @@ public:
 	TArray<ABoxSlot*> AcceptableBoxes;
 	void ClearBoxesState();
 
-	int32 CheckHitInDirection(const APlayerUnitBase* Player, const FVector& TraceDirection);
+	int32 CheckHitInDirection(const APlayerUnitBase* Player, const FVector& TraceDirection, bool bHitPlayer);
 
 	void RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle);
+
+	UPROPERTY(BlueprintReadOnly)
+	APlayerUnitBase* WinnerPlayer;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGameOverScreen();
 
 protected:
 	// Called when the game starts or when spawned

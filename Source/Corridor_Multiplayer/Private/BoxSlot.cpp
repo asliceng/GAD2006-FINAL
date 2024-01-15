@@ -25,12 +25,12 @@ ABoxSlot::ABoxSlot()
 	Plane->SetStaticMesh(DefaultSlotMesh.Object);
 
 	SetState(GS_Default);
+
 }
 
 void ABoxSlot::OnActorClicked(AActor* TouchedBox, FKey ButtonPressed)
 {
 	if (GameManager) GameManager->OnActorClicked(TouchedBox);
-	else UE_LOG(LogTemp, Error, TEXT("gm yok yok yok yok yok"));
 }
 
 void ABoxSlot::SpawnPlayerUnitHere(TSubclassOf<APlayerUnitBase>& UnitClass)
@@ -47,7 +47,8 @@ void ABoxSlot::SetState(EBoxState NewState)
 {
 	BoxState = NewState;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
-		DefaultSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Default.M_Default'"));
+		DefaultSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Default_Box.M_Default_Box'"));
+	//DefaultMaterial = ConstructorHelpers::FObjectFinder<UMaterialInterface>(TEXT("/Game/Materials/M_Default_Box.M_Default_Box'")).Object;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
 		DefaultSlotMaterial_A(TEXT("/Script/Engine.Material'/Game/Materials/M_Acceptable.M_Acceptable'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
@@ -64,7 +65,6 @@ void ABoxSlot::SetState(EBoxState NewState)
 	case GS_Unacceptable:
 		Plane->SetMaterial(0, DefaultSlotMaterial_U.Object);
 		break;
-
 	}
 }
 

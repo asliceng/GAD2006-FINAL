@@ -16,13 +16,10 @@ struct FSPlayerInfo
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FColor PlayerColor;
-
-	//PlayerLocation
-	UPROPERTY(EditAnywhere)
+	UMaterialInterface* PlayerColor;
+	
 	float RemainingObstaclesNum;
 
-	UPROPERTY(EditAnywhere)
 	TArray<ADraggableObstacle*> ObstacleList;
 
 	bool Ready;
@@ -39,6 +36,7 @@ struct FSUnitInfo
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ADraggableObstacle> ObstacleClass;
 
+	UPROPERTY(EditAnywhere)
 	FSPlayerInfo PlayerInfo;
 
 	UPROPERTY(EditAnywhere)
@@ -57,6 +55,9 @@ public:
 	// Sets default values for this actor's properties
 	APlayerUnitBase();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* StaticMesh;
+
 	void AssignToSlot(ABoxSlot* NewSlot);
 
 	UPROPERTY(EditAnywhere)
@@ -74,7 +75,14 @@ public:
 	UPROPERTY()
 	ANetPlayerController* NetPlayerController;
 
+	/*UPROPERTY()
+	FSPlayerInfo PInfo;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FColor PlayerColor();*/
+
+	UPROPERTY()
+	TArray<ABoxSlot*> WinningBoxes;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
