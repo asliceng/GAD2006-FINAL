@@ -26,6 +26,16 @@ struct FSBoxPosition
 
 	UPROPERTY(EditAnywhere)
 	uint8 Row;
+
+	FSBoxPosition operator+(const FSBoxPosition& Other) const
+	{
+		return FSBoxPosition(Col + Other.Col, Row + Other.Row);
+	}
+
+	bool operator==(const FSBoxPosition& Other) const
+	{
+		return Col == Other.Col && Row == Other.Row;
+	}
 };
 
 UENUM(Blueprintable)
@@ -34,6 +44,7 @@ enum EBoxState
 	GS_Default,
 	GS_Acceptable,
 	GS_Unacceptable,
+	GS_FloodFill
 };
 
 UCLASS()

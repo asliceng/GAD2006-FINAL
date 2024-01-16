@@ -50,9 +50,11 @@ void ABoxSlot::SetState(EBoxState NewState)
 		DefaultSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Default_Box.M_Default_Box'"));
 	//DefaultMaterial = ConstructorHelpers::FObjectFinder<UMaterialInterface>(TEXT("/Game/Materials/M_Default_Box.M_Default_Box'")).Object;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
-		DefaultSlotMaterial_A(TEXT("/Script/Engine.Material'/Game/Materials/M_Acceptable.M_Acceptable'"));
+		AcceptableSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Acceptable.M_Acceptable'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
-		DefaultSlotMaterial_U(TEXT("/Script/Engine.Material'/Game/Materials/M_Unacceptable.M_Unacceptable'"));
+		UnacceptableSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Unacceptable.M_Unacceptable'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
+		FloodFillSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_FloodFill.M_FloodFill'"));
 
 	switch (NewState)
 	{
@@ -60,10 +62,13 @@ void ABoxSlot::SetState(EBoxState NewState)
 		Plane->SetMaterial(0, DefaultSlotMaterial.Object);
 		break;
 	case GS_Acceptable:
-		Plane->SetMaterial(0, DefaultSlotMaterial_A.Object);
+		Plane->SetMaterial(0, AcceptableSlotMaterial.Object);
 		break;
 	case GS_Unacceptable:
-		Plane->SetMaterial(0, DefaultSlotMaterial_U.Object);
+		Plane->SetMaterial(0, UnacceptableSlotMaterial.Object);
+		break;
+	case GS_FloodFill:
+		Plane->SetMaterial(0, FloodFillSlotMaterial.Object);
 		break;
 	}
 }

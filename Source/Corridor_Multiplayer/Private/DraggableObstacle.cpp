@@ -88,9 +88,11 @@ void ADraggableObstacle::StopDragging()
             SetActorLocation(SnapToSlots());
             RemoveFromObstacleList();
             RemoveObstacleSlot();
+            
 
             if (GameManager)
             {
+                GameManager->FloodFillCheck();
                 GameManager->SwitchPlayer();
             }
         }

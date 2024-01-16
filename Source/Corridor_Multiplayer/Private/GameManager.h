@@ -70,6 +70,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGameOverScreen();
 
+	void FloodFillCheck(); //oyuncu sayýsý kadar for'da floodfill çalýþtýracak
+	void FloodFillRecursive(ABoxSlot* StartSlot, APlayerUnitBase* Player, TArray<ABoxSlot*> VisitedBoxes); // 
+	void GetNeighborBoxes(ABoxSlot* CenterSlot, TArray<ABoxSlot*>& Neighbors); //
+	bool DoesContainObstacleSlot(FSBoxPosition CheckingObstacle);
+
+	UFUNCTION(BlueprintCallable)
+	void ClearAllBoxStates();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

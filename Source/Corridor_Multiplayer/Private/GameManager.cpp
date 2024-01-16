@@ -38,7 +38,7 @@ void AGameManager::OnActorClicked(AActor* SelectedBox)
                 return;
             }
         }
-        
+        //ClearAllBoxStates();
         SwitchPlayer();
     }
 }
@@ -404,3 +404,111 @@ void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
     
 }
 
+void AGameManager::FloodFillCheck()
+{
+    APlayerUnitBase* Player = Players[CurrentPlayerIndex];
+    ABoxSlot* CurrentSlot = Player->Slot;
+    TArray<ABoxSlot*> VisitedBoxes;
+    FloodFillRecursive(CurrentSlot, Player, VisitedBoxes);
+}
+
+void AGameManager::FloodFillRecursive(ABoxSlot* StartSlot, APlayerUnitBase* Player, TArray<ABoxSlot*> VisitedBoxes)
+{
+    if (!StartSlot || !Player || VisitedBoxes.Contains(StartSlot)) return;
+
+    // Þu anki kutuyu iþaretle
+    VisitedBoxes.Add(StartSlot);
+
+    // Þu anki kutunun komþularýný kontrol et
+    TArray<ABoxSlot*> Neighbors;
+    GetNeighborBoxes(StartSlot, Neighbors);
+
+    for (ABoxSlot* Neighbor : Neighbors)
+    {
+        // Oyuncunun kontrolündeki kutulardan biri ile komþuluk varsa ve iþgal edilmemiþse iþaretle
+        if (Neighbor && Neighbor->BoxState != EBoxState::GS_FloodFill)
+        {
+            Neighbor->SetState(EBoxState::GS_FloodFill);
+
+            // Komþu kutuya geçiþ yap
+            FloodFillRecursive(Neighbor, Player, VisitedBoxes);
+        }
+    }
+}
+
+void AGameManager::GetNeighborBoxes(ABoxSlot* CenterSlot, TArray<ABoxSlot*>& Neighbors)
+{
+    if (!CenterSlot) return;
+
+    // Komþu kutularýn pozisyonlarý
+    static const FSBoxPosition NeighborOffsets[] = {
+        FSBoxPosition(-1, 0), //sol
+        FSBoxPosition(1, 0),  //sað
+        FSBoxPosition(0, -1), // yukarý
+        FSBoxPosition(0, 1)   //aþaðý
+    };
+
+    uint8 CenterCol = CenterSlot->BoxPosition.Col;
+    uint8 CenterRow = CenterSlot->BoxPosition.Row;
+
+    static const FSBoxPosition ObstacleOffset[] = {
+        FSBoxPosition(CenterCol - 1, CenterRow * 2), //sol
+        FSBoxPosition(CenterCol, CenterRow * 2),  //sað
+        FSBoxPosition(CenterCol, CenterRow * 2 - 1), // yukarý
+        FSBoxPosition(0, CenterRow * 2 + 1)   //aþaðý
+    };
+
+    FSBoxPosition CenterPosition = CenterSlot->BoxPosition;
+
+    for (int8 i = 0; i < sizeof(NeighborOffsets); i++)
+    {
+        if (!DoesContainObstacleSlot(ObstacleOffset[i]))
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Obstacle Col: %d, Row: %d"), ObstacleOffset[i].Col, ObstacleOffset[i].Row);
+        }
+        FSBoxPosition NeighborPosition = CenterPosition + NeighborOffsets[i];
+
+        if (NeighborPosition.Col >= 0 && NeighborPosition.Col < GameGrid->NumCols &&
+            NeighborPosition.Row >= 0 && NeighborPosition.Row < GameGrid->NumRows)
+        {
+            ABoxSlot* Neighbor = GameGrid->GetBoxSlot(NeighborPosition);
+            if (Neighbor)
+            {
+                Neighbors.Add(Neighbor);
+            }
+        }
+    }
+}
+
+bool AGameManager::DoesContainObstacleSlot(FSBoxPosition CheckingObstacle)
+{
+    for (UChildActorComponent* Actor : GameGrid->GridActors)
+    {
+        AObstacleSlot* ObsSlot = Cast<AObstacleSlot>(Actor);
+        if (ObsSlot && ObsSlot->ObstaclePosition == CheckingObstacle)
+        {
+            return true;
+        }
+    }  
+    return false;
+}
+
+void AGameManager::ClearAllBoxStates()
+{
+    //for (UChildActorComponent* Actor : GameGrid->GridActors)
+    //{
+    //    UChildActorComponent* ChildActorComponent = Actor;
+    //    ABoxSlot* Box = Cast<ABoxSlot>(ChildActorComponent->GetChildActor());
+
+    //    Box->SetState(GS_Default);
+
+    //}
+
+    for (int32 Index = 0; Index < GameGrid->GridActors.Num(); ++Index)
+    {
+        UChildActorComponent* ChildActorComponent = GameGrid->GridActors[Index];
+        ABoxSlot* Box = Cast<ABoxSlot>(ChildActorComponent->GetChildActor());
+
+        Box->SetState(GS_Default);
+    }
+}
