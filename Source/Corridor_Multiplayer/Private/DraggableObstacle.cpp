@@ -87,6 +87,7 @@ void ADraggableObstacle::StopDragging()
         {
             SetActorLocation(SnapToSlots());
             RemoveFromObstacleList();
+            RemoveObstacleSlot();
 
             if (GameManager)
             {
@@ -153,6 +154,30 @@ void ADraggableObstacle::RemoveFromObstacleList()
     }
 }
 
+void ADraggableObstacle::RemoveObstacleSlot()
+{
+    if (GameGrid && Slot1 && Slot2)
+    {
+        int32 Index1 = INDEX_NONE;
+        int32 Index2 = INDEX_NONE;
+       
+        for (int32 Index = 0; Index < GameGrid->GridActors.Num(); ++Index)
+        {
+            UChildActorComponent* ChildActorComponent = GameGrid->GridActors[Index];
+            AObstacleSlot* ObstacleSlot = Cast<AObstacleSlot>(ChildActorComponent->GetChildActor());
+
+            if (ObstacleSlot == Slot1) Index1 = Index;
+            else if (ObstacleSlot == Slot2) Index2 = Index;
+        }
+
+        if (Index1 != INDEX_NONE) GameGrid->GridActors.RemoveAt(Index1);
+        if (Index2 != INDEX_NONE) GameGrid->GridActors.RemoveAt(Index2);
+
+        if (Slot1) Slot1->Destroy();
+        if (Slot2) Slot2->Destroy();
+    }
+}
+
 bool ADraggableObstacle::CheckSlots()
 {
     Slot1 = nullptr;
@@ -212,8 +237,7 @@ bool ADraggableObstacle::CheckObstacles()
     for (AActor* OverlappingActor : OverlappingActors)
     {
         if (OverlappingActor == this || OverlappingActor->IsA(ADraggableObstacle::StaticClass()))
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Obstaclelar cakisiyor!!"));
+        {            
             bItIsNotObs = false;
         }       
     }

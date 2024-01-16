@@ -118,6 +118,7 @@ void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
             {               
                 PInfo.ObstacleList.Add(SpawnedObstacle);
                 SpawnedObstacle->PlayerController = ThePlayer->NetPlayerController;
+                SpawnedObstacle->GameGrid = GameGrid;
             }
         }
         else
@@ -341,7 +342,6 @@ int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVe
             ADraggableObstacle* DraggableObstacle = Cast<ADraggableObstacle>(HitActor);
             if (DraggableObstacle)
             {
-                UE_LOG(LogTemp, Error, TEXT("DraggableObs"));
                 return 1; 
             }
            
@@ -350,15 +350,13 @@ int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVe
                 APlayerUnitBase* PlayerUnit = Cast<APlayerUnitBase>(HitActor);
                 if (PlayerUnit)
                 {
-                    UE_LOG(LogTemp, Error, TEXT("APlayerUnitBase hit"));
                     return 2;
                 }
             }                       
         }
     }      
     DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10, 0, 2.0f); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma olmadý
-    UE_LOG(LogTemp, Error, TEXT("Nothing"));
-    CollisionParams.ClearIgnoredActors();
+    //CollisionParams.ClearIgnoredActors();
     return 0;
 }
 

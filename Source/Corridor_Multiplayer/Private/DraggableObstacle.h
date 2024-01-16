@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameManager.h"
 #include "ObstacleSlot.h"
+#include "GameGrid.h"
 #include "Kismet/GameplayStatics.h"
 #include "DraggableObstacle.generated.h"
 
@@ -23,6 +24,7 @@ public:
 	ADraggableObstacle();
 
 	AGameManager* GameManager;
+	AGameGrid* GameGrid;
 
 protected:
 	// Called when the game starts or when spawned
@@ -58,6 +60,8 @@ public:
 	AObstacleSlot* Slot2 = nullptr;
 
 	void RemoveFromObstacleList();
+
+	void RemoveObstacleSlot();
 
 	bool CanPlaceObstacle();
 	bool CheckSlots();
