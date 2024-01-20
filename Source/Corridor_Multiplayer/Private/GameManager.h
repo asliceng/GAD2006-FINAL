@@ -10,6 +10,7 @@
 #include "GameManager.generated.h"
 
 class DraggableObstacle;
+class ObstacleSlot;
 
 USTRUCT(BlueprintType)
 struct FSLevelInfo
@@ -70,10 +71,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGameOverScreen();
 
-	void FloodFillCheck(); //oyuncu sayýsý kadar for'da floodfill çalýþtýracak
+	bool FloodFillCheck(); //oyuncu sayýsý kadar for'da floodfill çalýþtýracak
 	void FloodFillRecursive(ABoxSlot* StartSlot, APlayerUnitBase* Player, TArray<ABoxSlot*> VisitedBoxes);
 	void GetNeighborBoxes(ABoxSlot* CenterSlot, TArray<ABoxSlot*>& Neighbors);
 	bool DoesContainObstacleSlot(FSBoxPosition CheckingObstacle);
+	AObstacleSlot* Slot1;
+	AObstacleSlot* Slot2;
 
 	UFUNCTION(BlueprintCallable)
 	void ClearAllBoxStates();

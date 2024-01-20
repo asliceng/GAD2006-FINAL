@@ -140,19 +140,20 @@ void AGameManager::SetPlayerWinningBoxes(FSUnitInfo& UnitInfo, ABoxSlot* Slot)
     for (int32 Row = 0; Row < GameGrid->NumRows; ++Row)
     {
         ABoxSlot* WinningBox = AGameGrid::FindBoxSlot(FSBoxPosition(WinningCol, Row));
+        //UE_LOG(LogTemp, Error, TEXT("WinningBox name = %s"), *WinningBox->GetActorLabel());
+
         if (WinningBox)
         {
             Player->WinningBoxes.Add(WinningBox);      
-            WinningBox->Plane->SetOverlayMaterial(UnitInfo.PlayerInfo.PlayerColor);
-            WinningBox->DefaultMaterial = UnitInfo.PlayerInfo.PlayerColor;
+            //WinningBox->Plane->SetOverlayMaterial(UnitInfo.PlayerInfo.PlayerColor);
+            //WinningBox->DefaultMaterial = UnitInfo.PlayerInfo.PlayerColor;
         }
     }
-    UE_LOG(LogTemp, Error, TEXT("WinningBox size = %d"), Player->WinningBoxes.Num());
+    //UE_LOG(LogTemp, Error, TEXT("WinningBox size = %d"), Player->WinningBoxes.Num());
 
     
 }
 
-// Called every frame
 void AGameManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -405,24 +406,35 @@ void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
     
 }
 
-void AGameManager::FloodFillCheck()
+bool AGameManager::FloodFillCheck()
 {
-    APlayerUnitBase* Player = Players[CurrentPlayerIndex]; //for döndür, her oyuncu için kontrol edecek
-    ABoxSlot* CurrentSlot = Player->Slot;
-    TArray<ABoxSlot*> VisitedBoxes;
-    FloodFillRecursive(CurrentSlot, Player, VisitedBoxes);
-
-    for (int32 i = 0; i < Player->WinningBoxes.Num(); ++i)
+    bool bCanPlaceObstacle;
+    for (auto CurrentPlayer : Players)
     {
-        ABoxSlot* CurrentBox = VisitedBoxes[i];
-        if (CurrentBox->BoxState == GS_FloodFill)
+        ABoxSlot* CurrentSlot = CurrentPlayer->Slot;
+        TArray<ABoxSlot*> VisitedBoxes;
+        FloodFillRecursive(CurrentSlot, CurrentPlayer, VisitedBoxes);
+
+        for (int32 i = 0; i < CurrentPlayer->WinningBoxes.Num(); ++i)
         {
-            UE_LOG(LogTemp, Warning, TEXT("Yol var!"));
-            //return true;
+            ABoxSlot* CurrentBox = CurrentPlayer->WinningBoxes[i];
+            if (CurrentBox->bFloodFill)
+            {
+                bCanPlaceObstacle = true;
+                ClearAllBoxStates();
+                break;
+            }
+            else
+            {
+                bCanPlaceObstacle = false;
+            }
+        }
+        if (!bCanPlaceObstacle)
+        {
+            break;
         }
     }
-    UE_LOG(LogTemp, Warning, TEXT("Sýkýþtý!"));
-    //return false;
+    return bCanPlaceObstacle;
 }
 
 void AGameManager::FloodFillRecursive(ABoxSlot* StartSlot, APlayerUnitBase* Player, TArray<ABoxSlot*> VisitedBoxes)
@@ -437,18 +449,21 @@ void AGameManager::FloodFillRecursive(ABoxSlot* StartSlot, APlayerUnitBase* Play
     for (ABoxSlot* Neighbor : Neighbors)
     {
         //Debug Color for Flood Fill
-        if (Neighbor && Neighbor->BoxState != EBoxState::GS_FloodFill)
-        {
-            Neighbor->SetState(EBoxState::GS_FloodFill);
-
-            FloodFillRecursive(Neighbor, Player, VisitedBoxes);
-        }
-
-        //if (Neighbor && !Neighbor->bVisited)
+        //if (Neighbor && Neighbor->BoxState != EBoxState::GS_FloodFill)
         //{
-        //    Neighbor->bVisited = true;
+        //    Neighbor->SetState(EBoxState::GS_FloodFill);
+
         //    FloodFillRecursive(Neighbor, Player, VisitedBoxes);
         //}
+
+        if (Neighbor && !Neighbor->bFloodFill)
+        {
+            Neighbor->bFloodFill = true;
+            if (Neighbor->bFloodFill)
+            {
+                FloodFillRecursive(Neighbor, Player, VisitedBoxes);
+            }
+        }
     }
 }
 
@@ -509,7 +524,6 @@ void AGameManager::GetNeighborBoxes(ABoxSlot* CenterSlot, TArray<ABoxSlot*>& Nei
                     if (Neighbor && Neighbor->GetActorLabel() == NeighborName)
                     {
                         Neighbors.Add(Neighbor);
-
                     }
                 }
             }          
@@ -524,7 +538,9 @@ bool AGameManager::DoesContainObstacleSlot(FSBoxPosition CheckingObstacle)
     for (UChildActorComponent* GridActor : GameGrid->GridActors)
     {
         AObstacleSlot* Neighbor = Cast<AObstacleSlot>(GridActor->GetChildActor());
-        if (Neighbor && Neighbor->GetActorLabel() == ObstacleSlotName)
+        if (Neighbor && Neighbor->GetActorLabel() == ObstacleSlotName &&
+            Slot1->GetActorLabel() != ObstacleSlotName &&
+            Slot2->GetActorLabel() != ObstacleSlotName)
         {
             return true;
         }
@@ -542,7 +558,7 @@ void AGameManager::ClearAllBoxStates()
 
         if (Box)
         {
-            Box->SetState(GS_Default);
+            Box->bFloodFill = false;        
         }
     }
 }

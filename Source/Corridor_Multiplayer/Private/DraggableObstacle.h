@@ -66,5 +66,4 @@ public:
 	bool CanPlaceObstacle();
 	bool CheckSlots();
 	bool CheckObstacles();
-
 };

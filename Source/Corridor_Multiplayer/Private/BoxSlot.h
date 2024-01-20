@@ -71,7 +71,8 @@ public:
 
 	AGameManager* GameManager;
 
-	bool bVisited;
+	UPROPERTY(BlueprintReadOnly)
+	bool bFloodFill;
 
 	UFUNCTION()
 	void OnActorClicked(AActor* TouchedBox, FKey ButtonPressed);

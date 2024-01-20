@@ -84,16 +84,27 @@ void ADraggableObstacle::StopDragging()
         OverlappingSlots.Empty();
 
         if (CanPlaceObstacle())
-        {
-            SetActorLocation(SnapToSlots());
-            RemoveFromObstacleList();
-            RemoveObstacleSlot();
-            
-
+        {          
             if (GameManager)
             {
-                GameManager->FloodFillCheck();
-                GameManager->SwitchPlayer();
+                GameManager->Slot1 = Slot1;
+                GameManager->Slot2 = Slot2;
+
+                if (GameManager->FloodFillCheck())
+                {
+                    SetActorLocation(SnapToSlots());
+                    RemoveFromObstacleList();
+                    RemoveObstacleSlot();
+                    GameManager->SwitchPlayer();
+                }
+                else
+                {
+                    SetActorLocation(DefaultLocation);
+                    SetActorRotation(FRotator::ZeroRotator);
+                    //oyuncularý sýkýþtýramazsýn! ekraný gelecek
+                    UE_LOG(LogTemp, Error, TEXT("oyuncularý sýkýstýramazsýn!"));
+
+                }                
             }
         }
         else
@@ -256,4 +267,3 @@ bool ADraggableObstacle::CanPlaceObstacle()
     
     return false;
 }
-
