@@ -162,8 +162,8 @@ void ADraggableObstacle::RemoveFromObstacleList()
 {
     if (GameManager && Slot1 && Slot2)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Gitsin istedigim Obstacle = %s"), *this->GetName());
         GameManager->RemoveObstacleFromPlayerList(this);
+        PlayerController = nullptr;
     }
 }
 

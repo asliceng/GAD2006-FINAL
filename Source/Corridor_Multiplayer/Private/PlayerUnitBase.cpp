@@ -28,11 +28,6 @@ void APlayerUnitBase::AssignToSlot(ABoxSlot* NewSlot)
 	SetActorLocation(Slot->GetActorLocation() + StartOffset);
 }
 
-//FColor APlayerUnitBase::PlayerColor()
-//{
-//	return PInfo.PlayerColor;
-//}
-
 // Called when the game starts or when spawned
 void APlayerUnitBase::BeginPlay()
 {

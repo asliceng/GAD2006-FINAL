@@ -39,7 +39,7 @@ public:
 	void SetupPlayers(FSLevelInfo& Info);
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo);
+	void SpawnObstaclesForPlayer(APlayerUnitBase* Player, FSUnitInfo UnitInfo);
 
 	UFUNCTION()
 	void SetPlayerWinningBoxes(FSUnitInfo& UnitInfo, ABoxSlot* Slot);

@@ -71,7 +71,6 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
                 Players.Add(ThePlayer);
                 ThePlayer->bIsActivePlayer = false;
                 ThePlayer->StaticMesh->SetOverlayMaterial(UnitInfo.PlayerInfo.PlayerColor);
-                //ThePlayer->PInfo = UnitInfo.PlayerInfo;
 
                 ANetPlayerController* Controller = GetWorld()->SpawnActor<ANetPlayerController>(ANetPlayerController::StaticClass());
                 if (Controller)
@@ -84,7 +83,7 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
                 }
 
                 SetPlayerWinningBoxes(UnitInfo, Slot);
-                SpawnObstaclesForPlayer(UnitInfo);
+                SpawnObstaclesForPlayer(ThePlayer, UnitInfo);
             }
         }       
     }    
@@ -100,12 +99,11 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
     }
 }
 
-void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
+void AGameManager::SpawnObstaclesForPlayer(APlayerUnitBase* Player, FSUnitInfo UnitInfo)
 {
-    FSPlayerInfo& PInfo = UnitInfo.PlayerInfo;
-    PInfo.RemainingObstaclesNum = 10;  
+    Player->RemainingObstaclesNum = 10;
 
-    for (int32 i = 0; i < PInfo.RemainingObstaclesNum; ++i)
+    for (int32 i = 0; i < Player->RemainingObstaclesNum; ++i)
     {
         if (UnitInfo.ObstacleClass)
         {
@@ -116,7 +114,7 @@ void AGameManager::SpawnObstaclesForPlayer(FSUnitInfo& UnitInfo)
 
             if (SpawnedObstacle)
             {               
-                PInfo.ObstacleList.Add(SpawnedObstacle);
+                Player->ObstacleList.Add(SpawnedObstacle);
                 SpawnedObstacle->PlayerController = ThePlayer->NetPlayerController;
                 SpawnedObstacle->GameGrid = GameGrid;
             }
@@ -360,46 +358,15 @@ int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVe
 
 void AGameManager::RemoveObstacleFromPlayerList(ADraggableObstacle* Obstacle)
 {
-    if (Levels.IsValidIndex(CurrentLevel))
+    for (ADraggableObstacle* Obs : Players[CurrentPlayerIndex]->ObstacleList)
     {
-        for (auto& UnitInfo : Levels[CurrentLevel].Units)
-        {
-            FSPlayerInfo& PInfo = UnitInfo.PlayerInfo;
-
-            UE_LOG(LogTemp, Error, TEXT("ObstacleList.Num() is = %d"), UnitInfo.PlayerInfo.ObstacleList.Num());
-
-            //for (auto& Obs : PInfo.ObstacleList)
-            //{
-            //    UE_LOG(LogTemp, Error, TEXT("RemoveObstacleFromPlayerList"));
-            //    UE_LOG(LogTemp, Error, TEXT("Removed Obstacle is = %s"), *Obs->GetName());
-            //    /* if (Obs == Obstacle)
-            //     {
-            //         PInfo.ObstacleList.Remove(Obs);
-            //         PInfo.RemainingObstaclesNum--;
-
-            //         UE_LOG(LogTemp, Error, TEXT("Removed Obstacle is = %s"), *Obs->GetName());
-
-            //         break;
-            //     }*/
-            //}
-
-            /*for (auto ObsIt = PInfo.ObstacleList.CreateIterator(); ObsIt; ++ObsIt)
-            {
-                UE_LOG(LogTemp, Error, TEXT("girdi"));
-                ADraggableObstacle* Obs = *ObsIt;
-                if (Obs == Obstacle)
-                {
-                    ObsIt.RemoveCurrent();
-                    PInfo.RemainingObstaclesNum--;
-
-                    UE_LOG(LogTemp, Error, TEXT("Removed Obstacle is = %s"), *Obs->GetName());
-
-                    break;
-                }
-            }*/
-        }
+         if (Obs == Obstacle)
+         {
+             Players[CurrentPlayerIndex]->ObstacleList.Remove(Obs);
+             Players[CurrentPlayerIndex]->RemainingObstaclesNum--;            
+             break;
+         }
     }
-    
 }
 
 bool AGameManager::FloodFillCheck()

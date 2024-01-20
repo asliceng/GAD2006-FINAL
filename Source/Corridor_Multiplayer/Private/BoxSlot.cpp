@@ -48,9 +48,6 @@ void ABoxSlot::SetState(EBoxState NewState)
 {
 	BoxState = NewState;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
-		DefaultSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Default_Box.M_Default_Box'"));
-	//DefaultMaterial = ConstructorHelpers::FObjectFinder<UMaterialInterface>(TEXT("/Game/Materials/M_Default_Box.M_Default_Box'")).Object;
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
 		AcceptableSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Acceptable.M_Acceptable'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
 		UnacceptableSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Unacceptable.M_Unacceptable'"));

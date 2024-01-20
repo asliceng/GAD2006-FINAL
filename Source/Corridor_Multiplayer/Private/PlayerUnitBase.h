@@ -17,10 +17,6 @@ struct FSPlayerInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* PlayerColor;
-	
-	float RemainingObstaclesNum;
-
-	TArray<ADraggableObstacle*> ObstacleList;
 
 	bool Ready;
 };
@@ -75,11 +71,9 @@ public:
 	UPROPERTY()
 	ANetPlayerController* NetPlayerController;
 
-	/*UPROPERTY()
-	FSPlayerInfo PInfo;
+	float RemainingObstaclesNum;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FColor PlayerColor();*/
+	TArray<ADraggableObstacle*> ObstacleList;
 
 	UPROPERTY()
 	TArray<ABoxSlot*> WinningBoxes;
