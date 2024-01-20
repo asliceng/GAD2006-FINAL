@@ -346,7 +346,7 @@ int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVe
     {
         for (const FHitResult& HitResult : HitResults)
         {
-            DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 10, 0, 10); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma oldu
+            //DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 10, 0, 10); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma oldu
 
             AActor* HitActor = HitResult.GetActor();
             ADraggableObstacle* DraggableObstacle = Cast<ADraggableObstacle>(HitActor);
@@ -365,7 +365,7 @@ int32 AGameManager::CheckHitInDirection(const APlayerUnitBase* Player, const FVe
             }                       
         }
     }      
-    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10, 0, 2.0f); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma olmadý
+    //DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10, 0, 2.0f); //LINETRACE GÖRÜNTÜSÜ -> çarpýþma olmadý
     //CollisionParams.ClearIgnoredActors();
     return 0;
 }
