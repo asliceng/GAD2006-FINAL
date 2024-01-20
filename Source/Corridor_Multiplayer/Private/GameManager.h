@@ -55,7 +55,17 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchPlayer();
-	ANetPlayerController* GetCurrentPlayer();
+
+	ANetPlayerController* GetCurrentPlayerController();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	APlayerUnitBase* GetCurrentPlayer();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void WarningPopUp();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayerChanged();
 
 	bool CheckBoxSlots();
 	TArray<ABoxSlot*> AcceptableBoxes;

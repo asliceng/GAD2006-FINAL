@@ -35,7 +35,6 @@ void ANetPlayerController::Tick(float DeltaTime)
 
             NewLocation.Z = DraggableObstacle->GetActorLocation().Z; 
             DraggableObstacle->SetActorLocation(NewLocation);
-            UE_LOG(LogTemp, Error, TEXT("NewLocation = %f x %f x %f"), NewLocation.X, NewLocation.Y, NewLocation.Z);          
         }
     } 
 }

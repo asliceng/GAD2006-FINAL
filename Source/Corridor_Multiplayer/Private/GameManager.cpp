@@ -53,6 +53,8 @@ void AGameManager::BeginPlay()
     {
         SetupPlayers(Levels[CurrentLevel]);
     }
+
+    PlayerChanged();
 }
 
 void AGameManager::SetupPlayers(FSLevelInfo& Info)
@@ -189,9 +191,10 @@ void AGameManager::ActivatePlayer(int32 PlayerIndex)
 void AGameManager::SwitchPlayer()
 {
     ActivatePlayer(CurrentPlayerIndex);
+    PlayerChanged();
 }
 
-ANetPlayerController* AGameManager::GetCurrentPlayer()
+ANetPlayerController* AGameManager::GetCurrentPlayerController()
 {
     if (Players.IsValidIndex(CurrentPlayerIndex))
     {
@@ -199,6 +202,11 @@ ANetPlayerController* AGameManager::GetCurrentPlayer()
     }
     UE_LOG(LogTemp, Warning, TEXT("ActivePlayerController : NULL"));
     return nullptr;
+}
+
+APlayerUnitBase* AGameManager::GetCurrentPlayer()
+{
+    return Players[CurrentPlayerIndex];
 }
 
 bool AGameManager::CheckBoxSlots()

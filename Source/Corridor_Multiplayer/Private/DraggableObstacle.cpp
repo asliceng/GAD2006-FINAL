@@ -52,7 +52,7 @@ void ADraggableObstacle::Tick(float DeltaTime)
 
 void ADraggableObstacle::StartDragging()
 {
-    if (PlayerController && GameManager && GameManager->GetCurrentPlayer() == PlayerController)
+    if (PlayerController && GameManager && GameManager->GetCurrentPlayerController() == PlayerController)
     {
         bIsDragging = true;
 
@@ -101,9 +101,8 @@ void ADraggableObstacle::StopDragging()
                 {
                     SetActorLocation(DefaultLocation);
                     SetActorRotation(FRotator::ZeroRotator);
-                    //oyuncularý sýkýþtýramazsýn! ekraný gelecek
-                    UE_LOG(LogTemp, Error, TEXT("oyuncularý sýkýstýramazsýn!"));
-
+                    GameManager->WarningPopUp();
+                    GameManager->ClearBoxesState();
                 }                
             }
         }
