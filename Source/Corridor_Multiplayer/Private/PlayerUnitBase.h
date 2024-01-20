@@ -54,6 +54,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(BlueprintReadOnly)
+	FName PlayerName;
+
 	void AssignToSlot(ABoxSlot* NewSlot);
 
 	UPROPERTY(EditAnywhere)

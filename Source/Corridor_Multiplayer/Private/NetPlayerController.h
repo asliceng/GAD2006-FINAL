@@ -29,6 +29,7 @@ public:
 
 	void StartDragging();
 	void StopDragging();
+	FVector PreviousDraggableObstacleLocation;
 
 	void OnMouseScroll(float DeltaScroll);
 

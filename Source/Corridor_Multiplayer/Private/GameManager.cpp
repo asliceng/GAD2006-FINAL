@@ -58,6 +58,7 @@ void AGameManager::BeginPlay()
 void AGameManager::SetupPlayers(FSLevelInfo& Info)
 {
     ThePlayer = nullptr;
+    int PlayerIndex = 1;
 
     for (auto UnitInfo : Info.Units)
     {
@@ -71,6 +72,11 @@ void AGameManager::SetupPlayers(FSLevelInfo& Info)
                 Players.Add(ThePlayer);
                 ThePlayer->bIsActivePlayer = false;
                 ThePlayer->StaticMesh->SetOverlayMaterial(UnitInfo.PlayerInfo.PlayerColor);
+
+                FName PlayerName(FString::Printf(TEXT("Player %d"), PlayerIndex));
+                PlayerIndex++;
+                ThePlayer->SetActorLabel(PlayerName.ToString());
+                ThePlayer->PlayerName = PlayerName;
 
                 ANetPlayerController* Controller = GetWorld()->SpawnActor<ANetPlayerController>(ANetPlayerController::StaticClass());
                 if (Controller)

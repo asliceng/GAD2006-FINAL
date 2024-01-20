@@ -30,12 +30,14 @@ void ANetPlayerController::Tick(float DeltaTime)
 
         FHitResult HitResult;
         if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility))
-        {
+        {            
             FVector NewLocation = HitResult.Location;
+
             NewLocation.Z = DraggableObstacle->GetActorLocation().Z; 
             DraggableObstacle->SetActorLocation(NewLocation);
+            UE_LOG(LogTemp, Error, TEXT("NewLocation = %f x %f x %f"), NewLocation.X, NewLocation.Y, NewLocation.Z);          
         }
-    }
+    } 
 }
 
 void ANetPlayerController::SetupInputComponent()
@@ -78,14 +80,6 @@ void ANetPlayerController::StopDragging()
     }
 }
 
-//void ANetPlayerController::OnActorClicked(AActor* Actor, FKey key)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("OnClicked: %s - %s"), *Actor->GetActorLabel(), *key.ToString());
-//    
-//    if (GameManager) GameManager->OnActorClicked(Actor);
-//    else UE_LOG(LogTemp, Error, TEXT("gm yok"));
-//}
-
 void ANetPlayerController::OnMouseScroll(float DeltaScroll)
 {
     if (DeltaScroll != 0.0f && !bHasScrolled)
@@ -101,13 +95,6 @@ void ANetPlayerController::OnMouseScroll(float DeltaScroll)
         bHasScrolled = false;
     }
 }
-
-//void ANetPlayerController::SetGM(AGameManager* GM)
-//{
-//    GameManager = GM;
-//    
-//    if (GameManager) UE_LOG(LogTemp, Error, TEXT("GM adý: %s"), *GameManager->GetActorLabel());
-//}
 
 void ANetPlayerController::SetPlayerActive(bool bIsActive)
 {
