@@ -140,18 +140,14 @@ void AGameManager::SetPlayerWinningBoxes(FSUnitInfo& UnitInfo, ABoxSlot* Slot)
     for (int32 Row = 0; Row < GameGrid->NumRows; ++Row)
     {
         ABoxSlot* WinningBox = AGameGrid::FindBoxSlot(FSBoxPosition(WinningCol, Row));
-        //UE_LOG(LogTemp, Error, TEXT("WinningBox name = %s"), *WinningBox->GetActorLabel());
 
         if (WinningBox)
         {
             Player->WinningBoxes.Add(WinningBox);      
-            //WinningBox->Plane->SetOverlayMaterial(UnitInfo.PlayerInfo.PlayerColor);
-            //WinningBox->DefaultMaterial = UnitInfo.PlayerInfo.PlayerColor;
+            WinningBox->DefaultMaterial = UnitInfo.PlayerInfo.PlayerColor;
+            WinningBox->SetState(GS_Default);
         }
     }
-    //UE_LOG(LogTemp, Error, TEXT("WinningBox size = %d"), Player->WinningBoxes.Num());
-
-    
 }
 
 void AGameManager::Tick(float DeltaTime)

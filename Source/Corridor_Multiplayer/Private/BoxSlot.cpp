@@ -24,6 +24,7 @@ ABoxSlot::ABoxSlot()
 	Plane->SetupAttachment(RootComponent);
 	Plane->SetStaticMesh(DefaultSlotMesh.Object);
 
+	DefaultMaterial = ConstructorHelpers::FObjectFinder<UMaterialInterface>(TEXT("/Script/Engine.Material'/Game/Materials/M_Default_Box.M_Default_Box'")).Object;
 	SetState(GS_Default);
 
 }
@@ -59,7 +60,7 @@ void ABoxSlot::SetState(EBoxState NewState)
 	switch (NewState)
 	{
 	case GS_Default:
-		Plane->SetMaterial(0, DefaultSlotMaterial.Object);
+		Plane->SetMaterial(0, DefaultMaterial);
 		break;
 	case GS_Acceptable:
 		Plane->SetMaterial(0, AcceptableSlotMaterial.Object);
