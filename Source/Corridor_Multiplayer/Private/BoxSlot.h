@@ -71,6 +71,8 @@ public:
 
 	AGameManager* GameManager;
 
+	bool bVisited;
+
 	UFUNCTION()
 	void OnActorClicked(AActor* TouchedBox, FKey ButtonPressed);
 
