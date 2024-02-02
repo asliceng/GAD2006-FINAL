@@ -24,7 +24,7 @@ ABoxSlot::ABoxSlot()
 	Plane->SetupAttachment(RootComponent);
 	Plane->SetStaticMesh(DefaultSlotMesh.Object);
 
-	DefaultMaterial = ConstructorHelpers::FObjectFinder<UMaterialInterface>(TEXT("/Script/Engine.Material'/Game/Materials/M_Default_Box.M_Default_Box'")).Object;
+	DefaultMaterial = ConstructorHelpers::FObjectFinder<UMaterialInterface>(TEXT("/Script/Engine.Material'/Engine/TemplateResources/M_Template_Master.M_Template_Master'")).Object;
 	SetState(GS_Default);
 
 }
@@ -48,7 +48,7 @@ void ABoxSlot::SetState(EBoxState NewState)
 {
 	BoxState = NewState;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
-		AcceptableSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Acceptable.M_Acceptable'"));
+		AcceptableSlotMaterial(TEXT("/Script/Engine.MaterialInstanceConstant'/Engine/VREditor/UI/FrameMaterial.FrameMaterial'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
 		UnacceptableSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Unacceptable.M_Unacceptable'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>

@@ -28,7 +28,7 @@ void AObstacleSlot::SetState(EBoxState NewState)
 {
 	ObstacleState = NewState;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
-		DefaultSlotMaterial(TEXT("/Script/Engine.Material'/Game/Materials/M_Default_Obstacle.M_Default_Obstacle'"));
+		DefaultSlotMaterial(TEXT("/Script/Engine.Material'/Engine/MaterialTemplates/PerfTricks/M_ContrastUsingLerp.M_ContrastUsingLerp'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
 		DefaultSlotMaterial_A(TEXT("/Script/Engine.Material'/Game/Materials/M_Acceptable.M_Acceptable'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface>
